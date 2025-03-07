@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>弹幕测试</title>
+  <style>
+    #danmaku-container {
+      position: relative;
+      width: 800px;
+      height: 450px;
+      background-color: #000;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    .danmaku {
+      position: absolute;
+      white-space: nowrap;
+      font-size: 20px;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      animation: moveLeftToRight 8s linear;
+    }
+    @keyframes moveLeftToRight {
+      from { left: 800px; }
+      to { left: -100%; }
+    }
+    #control-panel {
+      width: 800px;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+    }
+    #message {
+      width: 600px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+<h1 style="text-align: center;">弹幕系统测试</h1>
+
+<div id="danmaku-container"></div>
+
+<div id="control-panel">
+  <input type="text" id="username" placeholder="用户名" value="user123">
+  <input type="password" id="password" placeholder="密码" value="password">
+  <input type="text" id="roomId" placeholder="房间ID" value="123456">
+  <input type="text" id="message" placeholder="输入弹幕内容">
+  <button id="send">发送弹幕</button>
+  <button id="connect">连接WebSocket</button>
+  <span id="status">未连接</span>
+</div>
+
+<script>
+  let socket;
+  const container = document.getElementById('danmaku-container');
+  const connectBtn = document.getElementById('connect');
+  const sendBtn = document.getElementById('send');
+  const statusSpan = document.getElementById('status');
+
+  // 连接WebSocket
+  connectBtn.addEventListener('click', function() {
+    const roomId = document.getElementById('roomId').value;
+
+    if (socket) {
+      socket.close();
+    }
+
+    // 创建WebSocket连接
+    socket = new WebSocket(`ws://${window.location.host}/ws/${roomId}`);
+
+    socket.onopen = function() {
+      statusSpan.textContent = '已连接';
+      statusSpan.style.color = 'green';
+      connectBtn.textContent = '断开连接';
+    };
+
+    socket.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+
+      if (data.type === 'DANMAKU') {
+        addDanmaku(data.data);
+      } else if (data.type === 'HISTORY') {
+        // 显示历史弹幕
+        data.data.forEach(msg => {
+          addDanmaku(msg, true);
+        });
+      }
+    };
+
+    socket.onclose = function() {
+      statusSpan.textContent = '已断开';
+      statusSpan.style.color = 'red';
+      connectBtn.textContent = '连接WebSocket';
+    };
+
+    socket.onerror = function(error) {
+      console.error('WebSocket错误:', error);
+      statusSpan.textContent = '连接错误';
+      statusSpan.style.color = 'red';
+    };
+
+    // 定时发送心跳
+    setInterval(function() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send('PING');
+      }
+    }, 30000);
+  });
+
+  // 发送弹幕
+  sendBtn.addEventListener('click', function() {
+    const message = document.getElementById('message').value;
+    const roomId = document.getElementById('roomId').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (!message) {
+      alert('请输入弹幕内容');
+      return;
+    }
+
+    // 发送HTTP请求
+    fetch('/api/v1/danmaku', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa(username + ':' + password)
+      },
+      body: JSON.stringify({
+        roomId: roomId,
+        content: message,
+        type: 'NORMAL',
+        style: JSON.stringify({color: getRandomColor()})
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('发送失败');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('发送成功:', data);
+      document.getElementById('message').value = '';
+    })
+    .catch(error => {
+      console.error('发送失败:', error);
+      alert('发送失败: ' + error.message);
+    });
+  });
+
+  // 添加弹幕到屏幕
+  function addDanmaku(message, isHistory = false) {
+    const danmaku = document.createElement('div');
+    danmaku.className = 'danmaku';
+    danmaku.textContent = `${message.username}: ${message.content}`;
+
+    // 设置弹幕样式
+    try {
+      const style = typeof message.style === 'string' ?
+          JSON.parse(message.style) : message.style;
+
+      if (style.color) {
+        danmaku.style.color = style.color;
+      }
+      if (style.fontSize) {
+        danmaku.style.fontSize = style.fontSize + 'px';
+      }
+    } catch (e) {
+      console.error('解析样式失败:', e);
+    }
+
+    // 随机垂直位置
+    const top = Math.floor(Math.random() * (container.offsetHeight - 40));
+    danmaku.style.top = top + 'px';
+
+    // 如果是历史消息，设置随机位置
+    if (isHistory) {
+      const progress = Math.random() * 100;
+      danmaku.style.left = (800 - progress * 9) + 'px';
+      danmaku.style.animationDelay = (-progress / 12) + 's';
+    }
+
+    container.appendChild(danmaku);
+
+    // 动画结束后移除元素
+    danmaku.addEventListener('animationend', function() {
+      danmaku.remove();
+    });
+  }
+
+  // 生成随机颜色
+  function getRandomColor() {
+    const colors = ['#FFFFFF', '#FF0000', '#00FF00', '#FFFF00', '#0000FF', '#FF00FF', '#00FFFF'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+</script>
+</body>
+</html>
