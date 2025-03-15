@@ -1,7 +1,5 @@
 # barrage-rush
 
-# barrage-rush
-
 # 分布式高性能弹幕系统设计文档
 
 ## 一、系统架构概览

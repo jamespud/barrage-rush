@@ -1,0 +1,65 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /
+  tomcat:
+    max-threads: 200
+    max-connections: 10000
+
+spring:
+  application:
+    name: barrage-rush-connection
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 10000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1
+
+# 连接服务配置
+connection:
+  serverId: 1
+  serverAddress: localhost
+  serverPort: 8082
+  region: CENTRAL
+  maxConnections: 10000
+  heartbeatTimeout: 30000
+  heartbeatInterval: 15000
+  connectionTimeout: 5000
+  messageBufferSize: 100
+  messageSendInterval: 50
+  redis:
+    danmakuKeyPrefix: danmaku:room:
+    danmakuExpire: 3600
+    roomOnlineKeyPrefix: room:online:
+    userSessionKeyPrefix: user:session:
+    userSessionExpire: 3600
+    heartbeatKeyPrefix: heartbeat:
+    heartbeatExpire: 60
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.spud.barrage: INFO
+  file:
+    name: logs/barrage-rush-connection.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always 

@@ -1,3 +1,0 @@
-server:
-  tomcat:
-    max-connections: 10000

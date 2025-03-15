@@ -1,0 +1,50 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: barrage-rush-connection-proxy
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 10000
+
+proxy:
+  server-id: ${PROXY_SERVER_ID:proxy-1}
+  server-address: ${PROXY_SERVER_ADDRESS:localhost}
+  server-port: ${server.port}
+  region: ${PROXY_REGION:CENTRAL}
+  max-connections: 10000
+  connection-timeout: 5000
+  heartbeat-interval: 30
+  health-check-interval: 10
+  load-balance-strategy: ROUND_ROBIN
+  geo-location:
+    enabled: true
+    database-path: ${GEO_DB_PATH:/data/GeoLite2-City.mmdb}
+    default-region: CENTRAL
+    use-china-regions: true
+    log-detailed-location: true
+    add-location-to-session: true
+
+logging:
+  level:
+    root: INFO
+    com.spud.barrage: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/proxy.log
+    max-size: 10MB
+    max-history: 7
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

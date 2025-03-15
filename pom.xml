@@ -10,7 +10,15 @@
     <packaging>pom</packaging>
     <modules>
         <module>barrage-rush-auth</module>
-        <module>barrage-rush-core</module>
+      <module>barrage-rush-damaku</module>
+        <module>barrage-rush-push-server</module>
+        <module>barrage-rush-consumer</module>
+        <module>barrage-rush-connection</module>
+        <module>barrage-rush-common</module>
+      <module>barrage-rush-common/barrage-rush-common-mq</module>
+      <module>barrage-rush-common/barrage-rush-common-data</module>
+        <module>barrage-rush-common/barrage-rush-common-core</module>
+      <module>barrage-rush-connection-proxy</module>
     </modules>
 
     <parent>
