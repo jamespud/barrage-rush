@@ -17,10 +17,10 @@ public class RoomServiceImpl implements RoomService {
 
   @Autowired
   private RedisTemplate<String, Object> redisTemplate;
-  
+
   @Override
   public RoomConfig getRoomConfig(Long roomId) {
-    
+
     return null;
   }
 }

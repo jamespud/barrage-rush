@@ -1,17 +1,15 @@
 package com.spud.barrage.common.mq.config;
 
-import static com.spud.barrage.common.mq.config.RabbitMQConfig.coldViewersThreshold;
-import static com.spud.barrage.common.mq.config.RabbitMQConfig.hotViewersThreshold;
 import static com.spud.barrage.common.mq.util.MqUtils.checkRoomType;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.spud.barrage.common.data.config.RedisConfig;
 import com.spud.barrage.common.mq.util.MqUtils;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -29,35 +27,21 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Configuration
 @RequiredArgsConstructor
 public class DynamicQueueConfig {
-
-  // 使用Redis存储和读取直播间信息
-  private static RedisTemplate<String, Object> redisTemplate;
-
+  
+  // 房间队列变化缓存
+  private static final Cache<Long, Long> ROOM_EVENT_CACHE = Caffeine.newBuilder().build();
   // 房间分类Map缓存，避免频繁查询Redis
   private static final Cache<Long, RoomType> ROOM_TYPE_CACHE = Caffeine.newBuilder().build();
-
   // 房间流量计数器
   private static final Cache<Long, Integer> ROOM_VIEWER_CACHE = Caffeine.newBuilder().build();
-
   // 房间ex Map，记录当前房间的队列
   private static final Cache<Long, Set<Object>> ROOM_EXCHANGE_CACHE = Caffeine.newBuilder().build();
-
   // 房间队列Map，记录当前房间的队列
   private static final Cache<Long, Set<Object>> ROOM_QUEUE_CACHE = Caffeine.newBuilder().build();
-
-  /**
-   * 房间类型枚举
-   */
-  public enum RoomType {
-    // 冷门房间，共享队列
-    COLD,
-    // 普通房间，自己的队列
-    NORMAL,
-    // 热门房间，多分片队列
-    HOT,
-    // 超热门房间，多分片队列
-    SUPER_HOT
-  }
+  // 使用Redis存储和读取直播间信息
+  private static RedisTemplate<String, Object> redisTemplate;
+  
+  private static DynamicMQProperties dynamicMQProperties;
 
   public static Pair<Object, Object> getExchangeAndQueue(Long roomId) {
     Integer views = ROOM_VIEWER_CACHE.get(roomId, k -> {
@@ -70,7 +54,7 @@ public class DynamicQueueConfig {
     });
     RoomType oldType = ROOM_TYPE_CACHE.get(roomId, k -> RoomType.COLD);
     RoomType type = MqUtils.checkRoomType(views);
-    if (oldType != type) {
+    if (oldType != type && validateRoomEvent(roomId)) {
       // 清除现有exchange、queue绑定
       clearExchangeAndQueue(roomId);
       // 创建新的exchange、queue绑定
@@ -84,7 +68,7 @@ public class DynamicQueueConfig {
     // TODO: 负载均衡
     return Pair.of(exchanges.stream().findFirst().get(), queues.stream().findFirst().get());
   }
-  
+
   private static void clearExchangeAndQueue(Long roomId) {
     try {
       ROOM_EXCHANGE_CACHE.invalidate(roomId);
@@ -97,6 +81,11 @@ public class DynamicQueueConfig {
   }
 
   private static void createExchangeAndQueue(Long roomId, RoomType type) {
+    // 更新
+    long changeTime = System.currentTimeMillis();
+    redisTemplate.opsForValue()
+        .set(String.format(RedisConfig.ROOM_MQ_EVENT, roomId), changeTime);
+    ROOM_EVENT_CACHE.put(roomId, changeTime);
     // TODO: 原子性操作
     // TODO: 创建ex和queue
 
@@ -138,13 +127,13 @@ public class DynamicQueueConfig {
     try {
       // 查询所有活跃房间
       Set<String> activeRooms = redisTemplate.keys(RedisConfig.ACTIVE_ROOM);
-      if (activeRooms.isEmpty()) {
+      if (activeRooms == null || activeRooms.isEmpty()) {
         return;
       }
 
       // 批量获取所有房间的观众数量
       List<Object> viewersList = redisTemplate.opsForValue().multiGet(activeRooms);
-      if (viewersList == null) {
+      if (viewersList == null || viewersList.isEmpty()) {
         return;
       }
 
@@ -155,7 +144,7 @@ public class DynamicQueueConfig {
           long roomId = Long.parseLong(key.split(":")[1]);
           int viewers = Integer.parseInt(viewersList.get(i++).toString());
 
-          RoomType type = checkRoomType(viewers);
+          RoomType type = MqUtils.checkRoomType(viewers);
 
           // 更新本地缓存
           RoomType oldType = ROOM_TYPE_CACHE.get(roomId, k -> RoomType.NORMAL);
@@ -180,5 +169,36 @@ public class DynamicQueueConfig {
   private void preWarmHotRoom(long roomId) {
     log.info("Pre-warming resources for hot room: {}", roomId);
     // TODO: 这里可以添加预热逻辑，比如提前创建交换机和队列
+  }
+  
+  private static boolean validateRoomEvent(Long roomId) {
+    long lastEventTimestamp = getLatestRoomEvent(roomId);
+    return System.currentTimeMillis() - lastEventTimestamp
+        < dynamicMQProperties.getRoomEventChangeInterval();
+  }
+  
+  private static long getLatestRoomEvent(Long roomId) {
+    return ROOM_EVENT_CACHE.get(roomId, k -> {
+      Object object = redisTemplate.opsForValue()
+          .get(String.format(RedisConfig.ROOM_MQ_EVENT, roomId));
+      if (Objects.isNull(object) || !(object instanceof String)) {
+        return 0L;
+      }
+      return Long.parseLong(object.toString());
+    });
+  }
+
+  /**
+   * 房间类型枚举
+   */
+  public enum RoomType {
+    // 冷门房间，共享队列
+    COLD,
+    // 普通房间，自己的队列
+    NORMAL,
+    // 热门房间，多分片队列
+    HOT,
+    // 超热门房间，多分片队列
+    SUPER_HOT
   }
 } 

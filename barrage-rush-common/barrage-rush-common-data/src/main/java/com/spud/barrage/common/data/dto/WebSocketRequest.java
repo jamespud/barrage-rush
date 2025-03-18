@@ -11,7 +11,7 @@ public class WebSocketRequest<T> {
 
   // 消息类型
   private String type;
-  
+
   // 消息数据
   private T data;
 }

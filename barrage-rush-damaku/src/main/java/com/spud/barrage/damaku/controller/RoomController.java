@@ -1,7 +1,7 @@
 package com.spud.barrage.damaku.controller;
 
 import com.spud.barrage.common.data.dto.Result;
-import com.spud.barrage.common.data.entity.RoomConfig;
+import com.spud.barrage.common.data.entity.AnchorRoomConfig;
 import com.spud.barrage.common.data.service.RoomService;
 import com.spud.barrage.constant.ApiConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +24,8 @@ public class RoomController {
   private RoomService roomService;
 
   @GetMapping(ApiConstants.ROOM_CONFIG)
-  public Result<RoomConfig> roomConfig(@PathVariable("roomId") Long roomId) {
-    RoomConfig roomConfig = roomService.getRoomConfig(roomId);
+  public Result<AnchorRoomConfig> roomConfig(@PathVariable("roomId") Long roomId) {
+    AnchorRoomConfig roomConfig = roomService.getRoomConfig(roomId);
     // TODO: 处理房间配置
     return Result.success(roomConfig);
   }

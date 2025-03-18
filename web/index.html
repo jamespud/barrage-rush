@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>弹幕测试</title>
   <style>
     #danmaku-container {
@@ -13,6 +13,7 @@
       overflow: hidden;
       margin: 0 auto;
     }
+
     .danmaku {
       position: absolute;
       white-space: nowrap;
@@ -21,10 +22,16 @@
       font-family: Arial, sans-serif;
       animation: moveLeftToRight 8s linear;
     }
+
     @keyframes moveLeftToRight {
-      from { left: 800px; }
-      to { left: -100%; }
+      from {
+        left: 800px;
+      }
+      to {
+        left: -100%;
+      }
     }
+
     #control-panel {
       width: 800px;
       margin: 20px auto;
@@ -32,21 +39,25 @@
       background-color: #f0f0f0;
       border-radius: 5px;
     }
+
     input, button {
       padding: 8px;
       margin: 5px;
       border-radius: 3px;
       border: 1px solid #ccc;
     }
+
     #message {
       width: 600px;
     }
+
     button {
       background-color: #4CAF50;
       color: white;
       border: none;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #45a049;
     }
@@ -58,10 +69,10 @@
 <div id="danmaku-container"></div>
 
 <div id="control-panel">
-  <input type="text" id="username" placeholder="用户名" value="user123">
-  <input type="password" id="password" placeholder="密码" value="password">
-  <input type="text" id="roomId" placeholder="房间ID" value="123456">
-  <input type="text" id="message" placeholder="输入弹幕内容">
+  <input id="username" placeholder="用户名" type="text" value="user123">
+  <input id="password" placeholder="密码" type="password" value="password">
+  <input id="roomId" placeholder="房间ID" type="text" value="123456">
+  <input id="message" placeholder="输入弹幕内容" type="text">
   <button id="send">发送弹幕</button>
   <button id="connect">连接WebSocket</button>
   <span id="status">未连接</span>
@@ -75,7 +86,7 @@
   const statusSpan = document.getElementById('status');
 
   // 连接WebSocket
-  connectBtn.addEventListener('click', function() {
+  connectBtn.addEventListener('click', function () {
     const roomId = document.getElementById('roomId').value;
 
     if (socket) {
@@ -85,13 +96,13 @@
     // 创建WebSocket连接
     socket = new WebSocket(`ws://${window.location.host}/ws/${roomId}`);
 
-    socket.onopen = function() {
+    socket.onopen = function () {
       statusSpan.textContent = '已连接';
       statusSpan.style.color = 'green';
       connectBtn.textContent = '断开连接';
     };
 
-    socket.onmessage = function(event) {
+    socket.onmessage = function (event) {
       const data = JSON.parse(event.data);
 
       if (data.type === 'DANMAKU') {
@@ -104,20 +115,20 @@
       }
     };
 
-    socket.onclose = function() {
+    socket.onclose = function () {
       statusSpan.textContent = '已断开';
       statusSpan.style.color = 'red';
       connectBtn.textContent = '连接WebSocket';
     };
 
-    socket.onerror = function(error) {
+    socket.onerror = function (error) {
       console.error('WebSocket错误:', error);
       statusSpan.textContent = '连接错误';
       statusSpan.style.color = 'red';
     };
 
     // 定时发送心跳
-    setInterval(function() {
+    setInterval(function () {
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send('PING');
       }
@@ -125,7 +136,7 @@
   });
 
   // 发送弹幕
-  sendBtn.addEventListener('click', function() {
+  sendBtn.addEventListener('click', function () {
     const message = document.getElementById('message').value;
     const roomId = document.getElementById('roomId').value;
     const username = document.getElementById('username').value;
@@ -201,7 +212,7 @@
     container.appendChild(danmaku);
 
     // 动画结束后移除元素
-    danmaku.addEventListener('animationend', function() {
+    danmaku.addEventListener('animationend', function () {
       danmaku.remove();
     });
   }

@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>barrage-rush-damaku</artifactId>
+  <dependencies>
+    <dependency>
+      <artifactId>barrage-rush-common</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>barrage-rush-auth</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>barrage-rush-common-core</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>barrage-rush-common-mq</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>barrage-rush-common-data</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
-    <groupId>com.spud.barrage</groupId>
     <artifactId>barrage-rush</artifactId>
+    <groupId>com.spud.barrage</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-
-  <artifactId>barrage-rush-damaku</artifactId>
 
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  
-  <dependencies>
-    <dependency>
-      <groupId>com.spud.barrage</groupId>
-      <artifactId>barrage-rush-common</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.spud.barrage</groupId>
-      <artifactId>barrage-rush-common-core</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.spud.barrage</groupId>
-      <artifactId>barrage-rush-common-mq</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.spud.barrage</groupId>
-      <artifactId>barrage-rush-common-data</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
 
 </project>

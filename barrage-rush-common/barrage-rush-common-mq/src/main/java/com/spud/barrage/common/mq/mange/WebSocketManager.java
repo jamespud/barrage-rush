@@ -72,20 +72,21 @@ public class WebSocketManager {
       throws JsonProcessingException {
     ConcurrentHashMap<String, WebSocketSession> sessions = roomSessions.get(roomId);
     if (sessions == null || sessions.isEmpty()) {
-        return;
+      return;
     }
-    
-    String messageJson = objectMapper.writeValueAsString(new WebSocketResponse<>("DANMAKU_BATCH", messages));
+
+    String messageJson = objectMapper.writeValueAsString(
+        new WebSocketResponse<>("DANMAKU_BATCH", messages));
     TextMessage textMessage = new TextMessage(messageJson);
-    
+
     sessions.forEach((userId, session) -> {
-        if (session.isOpen()) {
-            try {
-                session.sendMessage(textMessage);
-            } catch (IOException e) {
-                log.error("Failed to send message to user {} in room {}", userId, roomId, e);
-            }
+      if (session.isOpen()) {
+        try {
+          session.sendMessage(textMessage);
+        } catch (IOException e) {
+          log.error("Failed to send message to user {} in room {}", userId, roomId, e);
         }
+      }
     });
   }
 

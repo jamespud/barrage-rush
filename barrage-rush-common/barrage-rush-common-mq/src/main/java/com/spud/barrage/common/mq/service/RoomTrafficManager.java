@@ -36,11 +36,11 @@ public class RoomTrafficManager {
   private final LoadingCache<String, Integer> roomViewerCache = Caffeine.newBuilder()
       .expireAfterWrite(config.getViewerCacheExpire(), TimeUnit.SECONDS)
       .build(this::getRoomViewerCount);
-  
+
   // 本地缓存房间交换机，减少Redis访问
   private final LoadingCache<String, Set<Object>> roomExchangeCache = Caffeine.newBuilder()
-    .expireAfterWrite(config.getExchangeCacheExpire(), TimeUnit.SECONDS)
-    .build(this::getRoomExchange);
+      .expireAfterWrite(config.getExchangeCacheExpire(), TimeUnit.SECONDS)
+      .build(this::getRoomExchange);
 
   // 本地缓存房间队列，减少Redis访问
   private final LoadingCache<String, Set<Object>> roomQueueCache = Caffeine.newBuilder()
@@ -68,16 +68,16 @@ public class RoomTrafficManager {
     // 根据观众数判断房间类型
     return MqUtils.checkRoomType(viewers);
   }
-  
+
   /**
    * 获取房间交换机
    */
   public Set<Object> getRoomExchange(String roomId) {
     try {
       return redisTemplate.opsForSet()
-         .members(String.format(RedisConfig.ROOM_EXCHANGE, roomId));
-      
-    }catch (Exception e) {
+          .members(String.format(RedisConfig.ROOM_EXCHANGE, roomId));
+
+    } catch (Exception e) {
       log.error("Failed to get room exchange for {}: {}", roomId, e.getMessage());
       return null;
     }

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 连接代理控制器
- * 
+ *
  * @author Spud
  * @date 2025/3/15
  */
@@ -44,7 +44,7 @@ public class ProxyController {
   public ResponseEntity<Map<String, Object>> getStatus() {
     try {
       Map<String, Object> status = new HashMap<>();
-      
+
       // 服务器信息
       Map<String, Object> serverInfo = new HashMap<>();
       serverInfo.put("id", properties.getServerId());
@@ -54,10 +54,10 @@ public class ProxyController {
       serverInfo.put("maxConnections", properties.getMaxConnections());
       serverInfo.put("loadBalanceStrategy", properties.getLoadBalanceStrategy());
       status.put("server", serverInfo);
-      
+
       // 连接统计
       status.put("connections", proxyHandler.getConnectionStats());
-      
+
       // 区域服务器信息
       Map<String, Object> regionServers = new HashMap<>();
       Set<String> regions = redisTemplate.keys(String.format(WSServerConnection.WS_REGION, "*"));
@@ -69,46 +69,46 @@ public class ProxyController {
         }
       }
       status.put("regionServers", regionServers);
-      
+
       return ResponseEntity.ok(status);
     } catch (Exception e) {
       log.error("获取代理服务器状态失败: {}", e.getMessage(), e);
       return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
     }
   }
-  
+
   /**
    * 测试IP地理位置
    */
   @GetMapping("/test-ip")
   public ResponseEntity<Map<String, Object>> testIp(@RequestParam String ip) {
     Map<String, Object> result = new HashMap<>();
-    
+
     try {
       Map<String, String> locationDetail = geoLocationService.getLocationDetail(ip);
       String region = geoLocationService.getRegion(ip);
-      
+
       result.put("ip", ip);
       result.put("location", locationDetail);
       result.put("region", region);
-      
+
       // 获取推荐的服务器
       Integer recommendedServer = loadBalancer.selectTargetServer(region);
       result.put("recommendedServer", recommendedServer);
-      
+
       // 获取服务器信息
       if (recommendedServer != null) {
         String infoKey = String.format(WSServerConnection.WS_INFO, recommendedServer);
         Map<Object, Object> serverInfo = redisTemplate.opsForHash().entries(infoKey);
         result.put("serverInfo", serverInfo);
       }
-      
-      log.info("IP测试: {}, 位置: {}, 区域: {}, 推荐服务器: {}", 
-          ip, 
-          locationDetail, 
-          region, 
+
+      log.info("IP测试: {}, 位置: {}, 区域: {}, 推荐服务器: {}",
+          ip,
+          locationDetail,
+          region,
           recommendedServer);
-      
+
       return ResponseEntity.ok(result);
     } catch (Exception e) {
       log.error("IP测试失败: {}", e.getMessage(), e);
@@ -116,7 +116,7 @@ public class ProxyController {
       return ResponseEntity.badRequest().body(result);
     }
   }
-  
+
   /**
    * 获取服务器信息
    */
@@ -124,7 +124,7 @@ public class ProxyController {
   public ResponseEntity<Map<String, Object>> getServers() {
     try {
       Map<String, Object> result = new HashMap<>();
-      
+
       // 获取所有服务器信息
       Set<String> infoKeys = redisTemplate.keys(String.format(WSServerConnection.WS_INFO, "*"));
       if (infoKeys != null) {
@@ -132,21 +132,21 @@ public class ProxyController {
         for (String key : infoKeys) {
           String serverId = key.split(":")[2];
           Map<Object, Object> serverInfo = redisTemplate.opsForHash().entries(key);
-          
+
           // 获取服务器连接数
           String connKey = String.format(WSServerConnection.WS_CONNECTION, serverId);
           Object connections = redisTemplate.opsForValue().get(connKey);
           if (connections != null) {
             serverInfo.put("connections", connections);
           }
-          
+
           // 获取服务器延迟
           String latKey = String.format(WSServerConnection.WS_LATENCY, serverId);
           Object latency = redisTemplate.opsForValue().get(latKey);
           if (latency != null) {
             serverInfo.put("latency", latency);
           }
-          
+
           // 获取服务器健康状态
           String healthKey = String.format(WSServerConnection.WS_HEALTH, serverId);
           Object health = redisTemplate.opsForValue().get(healthKey);
@@ -155,19 +155,19 @@ public class ProxyController {
           } else {
             serverInfo.put("health", WSServerConnection.HEALTH_UNKNOWN);
           }
-          
+
           servers.put(serverId, serverInfo);
         }
         result.put("servers", servers);
       }
-      
+
       return ResponseEntity.ok(result);
     } catch (Exception e) {
       log.error("获取服务器信息失败: {}", e.getMessage(), e);
       return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
     }
   }
-  
+
   /**
    * 获取特定服务器信息
    */
@@ -175,32 +175,33 @@ public class ProxyController {
   public ResponseEntity<Map<String, Object>> getServerInfo(@PathVariable int serverId) {
     try {
       Map<String, Object> result = new HashMap<>();
-      
+
       // 获取服务器信息
       String infoKey = String.format(WSServerConnection.WS_INFO, serverId);
       Map<Object, Object> serverInfo = redisTemplate.opsForHash().entries(infoKey);
-      
+
       if (serverInfo == null || serverInfo.isEmpty()) {
         return ResponseEntity.notFound().build();
       }
-      
+
       result.putAll(serverInfo.entrySet().stream()
-          .collect(HashMap::new, (m, e) -> m.put(e.getKey().toString(), e.getValue()), HashMap::putAll));
-      
+          .collect(HashMap::new, (m, e) -> m.put(e.getKey().toString(), e.getValue()),
+              HashMap::putAll));
+
       // 获取服务器连接数
       String connKey = String.format(WSServerConnection.WS_CONNECTION, serverId);
       Object connections = redisTemplate.opsForValue().get(connKey);
       if (connections != null) {
         result.put("connections", connections);
       }
-      
+
       // 获取服务器延迟
       String latKey = String.format(WSServerConnection.WS_LATENCY, serverId);
       Object latency = redisTemplate.opsForValue().get(latKey);
       if (latency != null) {
         result.put("latency", latency);
       }
-      
+
       // 获取服务器健康状态
       String healthKey = String.format(WSServerConnection.WS_HEALTH, serverId);
       Object health = redisTemplate.opsForValue().get(healthKey);
@@ -209,14 +210,14 @@ public class ProxyController {
       } else {
         result.put("health", WSServerConnection.HEALTH_UNKNOWN);
       }
-      
+
       return ResponseEntity.ok(result);
     } catch (Exception e) {
       log.error("获取服务器信息失败: {}", e.getMessage(), e);
       return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
     }
   }
-  
+
   /**
    * 注册当前服务器
    */
@@ -224,19 +225,19 @@ public class ProxyController {
   public ResponseEntity<Map<String, Object>> registerServer() {
     try {
       loadBalancer.registerServer();
-      
+
       Map<String, Object> result = new HashMap<>();
       result.put("status", "success");
       result.put("serverId", properties.getServerId());
       result.put("region", properties.getRegion());
-      
+
       return ResponseEntity.ok(result);
     } catch (Exception e) {
       log.error("注册服务器失败: {}", e.getMessage(), e);
       return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
     }
   }
-  
+
   /**
    * 健康检查
    */
@@ -248,7 +249,7 @@ public class ProxyController {
     health.put("region", properties.getRegion());
     health.put("connections", proxyHandler.getConnectionStats().get("totalConnections"));
     health.put("timestamp", System.currentTimeMillis());
-    
+
     return ResponseEntity.ok(health);
   }
 } 

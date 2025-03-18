@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
  * routing key暂时没有实际含义，只是用于区分共享exchange不同的queue
  * <p>
  * 直播间与exchange、queue、routing key的关系见 {@link RedisConfig}
+ *
  * @author Spud
  * @date 2025/3/11
  */

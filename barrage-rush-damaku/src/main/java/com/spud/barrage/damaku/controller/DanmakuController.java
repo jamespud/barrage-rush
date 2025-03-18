@@ -7,14 +7,17 @@ import com.spud.barrage.constant.ApiConstants;
 import com.spud.barrage.damaku.service.DanmakuService;
 import com.spud.barrage.util.SnowflakeIdWorker;
 import jakarta.validation.Valid;
-import java.util.List;
+import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -28,46 +31,32 @@ public class DanmakuController {
 
   @Autowired
   private DanmakuService danmakuService;
-  
+
   @Autowired
   private SnowflakeIdWorker snowflakeIdWorker;
 
   /**
    * 通过http发送弹幕，并将弹幕推送到mq
    */
+  @PreAuthorize("!hasAnyRole(roomId)")
   @PostMapping(ApiConstants.SEND_DANMAKU)
-  public Result<Void> sendDanmaku(@Valid @RequestBody DanmakuRequest request) {
-    // TODO: 从token获取用户id
-    Long userId = 1L;
-    DanmakuMessage danmakuMessage = buildDanmakuMessage(request, userId);
-
+  public Result<Void> sendDanmaku(@Valid @RequestBody DanmakuRequest request,
+      @PathVariable Long roomId) {
+    SecurityContext context = SecurityContextHolder.getContext();
+    Long userId = Long.parseLong(context.getAuthentication().getName());
+    DanmakuMessage danmakuMessage = new DanmakuMessage(snowflakeIdWorker.nextId(), userId, request);
     danmakuService.processDanmaku(danmakuMessage);
-
     return Result.success();
-  }
-
-  private DanmakuMessage buildDanmakuMessage(DanmakuRequest request, Long userId) {
-
-    return DanmakuMessage.builder()
-        .id(snowflakeIdWorker.nextId())
-        .userId(userId)
-        .roomId(request.getRoomId())
-        .content(request.getContent())
-        .type(request.getType())
-        .timestamp(System.currentTimeMillis())
-        .build();
-
   }
 
   /**
    * 获取最近弹幕
    */
   @GetMapping(ApiConstants.GET_RECENT)
-  public Result<List<DanmakuMessage>> getRecentDanmaku(
-      @RequestParam Long roomId,
-      @RequestParam Long userId) {
+  public Result<Collection<DanmakuMessage>> getRecentDanmaku(
+      @PathVariable Long roomId) {
     try {
-      List<DanmakuMessage> messages = danmakuService.getRecentDanmaku(roomId, userId, 10);
+      Collection<DanmakuMessage> messages = danmakuService.getRecentDanmaku(roomId, 10);
       return Result.success(messages);
     } catch (Exception e) {
       log.error("Get recent danmaku error", e);

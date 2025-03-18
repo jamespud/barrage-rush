@@ -20,7 +20,6 @@ public class Constants {
   // WebSocket相关常量
   public static final int HEARTBEAT_INTERVAL = 30;  // 30秒
   public static final int HEARTBEAT_TIMEOUT = 90;   // 90秒
-  
-  
-  
+
+
 }

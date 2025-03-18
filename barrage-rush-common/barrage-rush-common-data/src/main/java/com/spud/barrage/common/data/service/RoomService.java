@@ -1,6 +1,6 @@
 package com.spud.barrage.common.data.service;
 
-import com.spud.barrage.common.data.entity.RoomConfig;
+import com.spud.barrage.common.data.entity.AnchorRoomConfig;
 
 /**
  * @author Spud
@@ -11,5 +11,5 @@ public interface RoomService {
   /**
    * 获取房间配置
    */
-  RoomConfig getRoomConfig(Long roomId);
+  AnchorRoomConfig getRoomConfig(Long roomId);
 }

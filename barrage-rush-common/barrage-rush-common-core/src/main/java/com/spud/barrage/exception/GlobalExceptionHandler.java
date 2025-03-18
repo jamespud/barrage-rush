@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(BusinessException.class)
-  public Result<Void> handleBusinessException(BusinessException e) {
+  @ExceptionHandler(BarrageException.class)
+  public Result<Void> handleBusinessException(BarrageException e) {
     log.warn("Business exception: {}", e.getMessage());
     return Result.fail(e.getCode(), e.getMessage());
   }

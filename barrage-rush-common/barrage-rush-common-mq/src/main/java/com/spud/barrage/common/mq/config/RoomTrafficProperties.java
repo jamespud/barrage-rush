@@ -27,14 +27,14 @@ public class RoomTrafficProperties {
 
   // 房间类型缓存过期时间（秒）
   private int typeCacheExpire = 300;
-  
+
   // 房间观众数缓存过期时间（秒）
   private int viewerCacheExpire = 300;
-  
+
   // 房间队列缓存过期时间（秒）
   private int queueCacheExpire = 300;
-  
+
   // 房间交换机缓存过期时间（秒）
   private int exchangeCacheExpire = 300;
-  
+
 }

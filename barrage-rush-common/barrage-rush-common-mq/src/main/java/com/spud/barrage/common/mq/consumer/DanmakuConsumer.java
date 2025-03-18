@@ -1,7 +1,6 @@
 package com.spud.barrage.common.mq.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spud.barrage.common.data.config.RedisConfig;
 import com.spud.barrage.common.data.dto.DanmakuMessage;
 import com.spud.barrage.common.data.repository.DanmakuRepository;
 import com.spud.barrage.common.mq.mange.WebSocketManager;

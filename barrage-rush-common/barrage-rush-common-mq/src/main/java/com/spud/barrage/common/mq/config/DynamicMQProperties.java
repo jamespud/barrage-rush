@@ -30,4 +30,7 @@ public class DynamicMQProperties {
 
   // 队列清理间隔（秒）
   private int cleanupInterval = 300;
+  
+  // 房间队列变化间隔
+  private int roomEventChangeInterval = 5 * 60 * 1000;
 } 

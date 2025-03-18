@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * 负载均衡服务
- * 
+ *
  * @author Spud
  * @date 2025/3/13
  */
@@ -26,14 +26,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LoadBalancer {
 
+  private static final ConcurrentHashMap<String, AtomicInteger> regionCounterMap = new ConcurrentHashMap<>();
   private final RedisTemplate<String, Object> redisTemplate;
   private final ProxyProperties properties;
-  
-  private static final ConcurrentHashMap<String, AtomicInteger>  regionCounterMap = new ConcurrentHashMap<>();
 
   /**
    * 选择目标服务器
-   * 
+   *
    * @param region 区域
    * @return 服务器ID，如果没有可用服务器则返回null
    */
@@ -65,7 +64,9 @@ public class LoadBalancer {
     }
 
     List<Integer> serverList = new ArrayList<>(servers);
-    return serverList.get(Math.abs(regionCounterMap.getOrDefault(region, new AtomicInteger(0)).incrementAndGet() % serverList.size()));
+    return serverList.get(Math.abs(
+        regionCounterMap.getOrDefault(region, new AtomicInteger(0)).incrementAndGet()
+            % serverList.size()));
   }
 
   /**
@@ -104,17 +105,17 @@ public class LoadBalancer {
   private Set<Integer> getHealthyServers(String region) {
     String key = String.format(WSServerConnection.WS_REGION, region);
     Set<Object> members = redisTemplate.opsForSet().members(key);
-    
+
     if (members == null || members.isEmpty()) {
       // 如果指定区域没有服务器，尝试使用默认区域
       if (!region.equals(properties.getGeoLocation().getDefaultRegion())) {
-        log.info("区域 {} 没有可用服务器，尝试使用默认区域 {}", 
+        log.info("区域 {} 没有可用服务器，尝试使用默认区域 {}",
             region, properties.getGeoLocation().getDefaultRegion());
         return getHealthyServers(properties.getGeoLocation().getDefaultRegion());
       }
       return null;
     }
-    
+
     return members.stream()
         .map(obj -> {
           try {
@@ -134,11 +135,11 @@ public class LoadBalancer {
   private boolean isServerHealthy(Integer serverId) {
     String healthKey = String.format(WSServerConnection.WS_HEALTH, serverId);
     Object health = redisTemplate.opsForValue().get(healthKey);
-    
+
     if (health == null) {
       return false;
     }
-    
+
     return WSServerConnection.HEALTH_UP.equals(health.toString());
   }
 
@@ -189,13 +190,13 @@ public class LoadBalancer {
       redisTemplate.expire(healthKey, WSServerConnection.SERVER_EXPIRE_SECONDS, TimeUnit.SECONDS);
       redisTemplate.expire(regionKey, WSServerConnection.SERVER_EXPIRE_SECONDS, TimeUnit.SECONDS);
 
-      log.debug("更新服务器状态: id={}, 区域={}, 连接数={}, 延迟={}ms", 
+      log.debug("更新服务器状态: id={}, 区域={}, 连接数={}, 延迟={}ms",
           serverId, region, connections, latency);
     } catch (Exception e) {
       log.error("更新服务器状态失败: {}", e.getMessage(), e);
     }
   }
-  
+
   /**
    * 注册当前服务器
    */
@@ -203,7 +204,7 @@ public class LoadBalancer {
     try {
       int serverId = properties.getServerId();
       String region = properties.getRegion();
-      
+
       // 更新服务器信息
       String infoKey = String.format(WSServerConnection.WS_INFO, serverId);
       redisTemplate.opsForHash().put(infoKey, "id", serverId);
@@ -212,16 +213,16 @@ public class LoadBalancer {
       redisTemplate.opsForHash().put(infoKey, "region", region);
       redisTemplate.opsForHash().put(infoKey, "maxConnections", properties.getMaxConnections());
       redisTemplate.opsForHash().put(infoKey, "registerTime", System.currentTimeMillis());
-      
+
       // 添加到区域服务器集合
       String regionKey = String.format(WSServerConnection.WS_REGION, region);
       redisTemplate.opsForSet().add(regionKey, serverId);
-      
+
       // 设置过期时间
       redisTemplate.expire(infoKey, WSServerConnection.SERVER_EXPIRE_SECONDS, TimeUnit.SECONDS);
       redisTemplate.expire(regionKey, WSServerConnection.SERVER_EXPIRE_SECONDS, TimeUnit.SECONDS);
-      
-      log.info("注册服务器: id={}, 区域={}, 地址={}:{}", 
+
+      log.info("注册服务器: id={}, 区域={}, 地址={}:{}",
           serverId, region, properties.getServerAddress(), properties.getServerPort());
     } catch (Exception e) {
       log.error("注册服务器失败: {}", e.getMessage(), e);

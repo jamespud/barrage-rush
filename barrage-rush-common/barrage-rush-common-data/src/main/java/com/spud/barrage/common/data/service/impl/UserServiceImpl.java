@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserServiceImpl implements UserService {
-  
+
   private UserRepository userRepository;
 
   @Override
@@ -37,5 +37,10 @@ public class UserServiceImpl implements UserService {
   public User getUserById(Long userId) {
     Optional<User> user = userRepository.findById(userId);
     return user.orElse(null);
+  }
+
+  @Override
+  public User getUserByUsername(String username) {
+    return userRepository.findByUsername(username);
   }
 }

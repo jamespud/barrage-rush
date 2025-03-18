@@ -1,15 +1,17 @@
 package com.spud.barrage.damaku.service.impl;
 
-import com.spud.barrage.common.data.cache.DanmakuCacheManager;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.spud.barrage.common.data.dto.DanmakuMessage;
-import com.spud.barrage.common.data.entity.RoomConfig;
+import com.spud.barrage.common.data.entity.AnchorRoomConfig;
 import com.spud.barrage.common.data.service.RoomService;
 import com.spud.barrage.constant.ApiConstants;
 import com.spud.barrage.constant.Constants;
 import com.spud.barrage.damaku.mq.DanmakuProducer;
 import com.spud.barrage.damaku.service.DanmakuService;
 import com.spud.barrage.util.SnowflakeIdWorker;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +28,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DanmakuServiceImpl implements DanmakuService {
 
-  private final DanmakuCacheManager cacheManager;
   private final DanmakuProducer danmakuProducer;
   private final RoomService roomService;
+  private static final LoadingCache<Long, Cache<Long, DanmakuMessage>> messageCache = Caffeine.newBuilder()
+      .maximumSize(1000)
+      .expireAfterWrite(1, TimeUnit.MINUTES)
+      .build(roomId -> Caffeine.newBuilder()
+          .maximumSize(1000)
+          .expireAfterWrite(1, TimeUnit.MINUTES)
+          .build()
+      );
 
   @Autowired
   private RedisTemplate<String, Object> redisTemplate;
@@ -43,17 +52,17 @@ public class DanmakuServiceImpl implements DanmakuService {
       // 2. 发送到消息队列
       danmakuProducer.sendDanmaku(message);
       // 3. 更新本地缓存
-      cacheManager.addMessage(message.getRoomId(), message);
+      messageCache.get(message.getRoomId()).put(message.getId(), message);
       log.info("Process danmaku success: {}", message);
     }
-     
+
   }
 
   private boolean validateMessage(DanmakuMessage message) {
     boolean valid = true;
 
     // 1. 检查房间状态: 房间是否允许弹幕
-    RoomConfig roomConfig = roomService.getRoomConfig(message.getRoomId());
+    AnchorRoomConfig roomConfig = roomService.getRoomConfig(message.getRoomId());
     if (roomConfig != null && !roomConfig.getAllowDanmaku()) {
       valid = false;
       log.error("Room is closed");
@@ -61,11 +70,12 @@ public class DanmakuServiceImpl implements DanmakuService {
 
     // 2. 检查发送权限: 
     // 是否被禁言，是否超过发送频率限制
-    if (valid && !checkSendPermission(message.getUserId().toString(), message.getRoomId().toString())) {
+    if (valid && !checkSendPermission(message.getUserId().toString(),
+        message.getRoomId().toString())) {
       valid = false;
       log.error("User is banned");
     }
-    
+
     return valid;
   }
 
@@ -87,8 +97,8 @@ public class DanmakuServiceImpl implements DanmakuService {
   }
 
   @Override
-  public List<DanmakuMessage> getRecentDanmaku(Long roomId, Long userId, int limit) {
-    return cacheManager.getRoomMessages(roomId.toString());
+  public Collection<DanmakuMessage> getRecentDanmaku(Long roomId, int limit) {
+    return messageCache.get(roomId).asMap().values();
   }
-  
+
 }
