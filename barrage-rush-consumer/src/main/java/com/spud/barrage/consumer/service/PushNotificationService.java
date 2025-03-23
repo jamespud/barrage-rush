@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -92,8 +94,7 @@ public class PushNotificationService {
       Map<String, Object> payload = Map.of(
           "type", "DANMAKU",
           "roomId", message.getRoomId(),
-          "message", message
-      );
+          "message", message);
 
       HttpEntity<String> request = new HttpEntity<>(
           objectMapper.writeValueAsString(payload), headers);
@@ -103,4 +104,4 @@ public class PushNotificationService {
       log.error("Failed to send to push server: {}", e.getMessage(), e);
     }
   }
-} 
+}

@@ -50,24 +50,24 @@ public class DanmakuServiceImpl implements DanmakuService {
     // 1. 消息验证
     if (validateMessage(message)) {
       // 2. 发送到消息队列
-      danmakuProducer.sendDanmaku(message);
-      // 3. 更新本地缓存
-      messageCache.get(message.getRoomId()).put(message.getId(), message);
-      log.info("Process danmaku success: {}", message);
+      boolean sent = danmakuProducer.sendDanmaku(message);
+      if (sent) {
+        // 3. 更新本地缓存
+        messageCache.get(message.getRoomId()).put(message.getId(), message);
+        log.info("Process danmaku success: {}", message);
+      }
     }
 
   }
 
   private boolean validateMessage(DanmakuMessage message) {
     boolean valid = true;
-
     // 1. 检查房间状态: 房间是否允许弹幕
     AnchorRoomConfig roomConfig = roomService.getRoomConfig(message.getRoomId());
     if (roomConfig != null && !roomConfig.getAllowDanmaku()) {
       valid = false;
       log.error("Room is closed");
     }
-
     // 2. 检查发送权限: 
     // 是否被禁言，是否超过发送频率限制
     if (valid && !checkSendPermission(message.getUserId().toString(),
@@ -86,7 +86,6 @@ public class DanmakuServiceImpl implements DanmakuService {
     if (Boolean.TRUE.equals(redisTemplate.hasKey(banKey))) {
       return false;
     }
-
     // 2. 检查发送频率
     String limitKey = String.format(ApiConstants.REDIS_USER_LIMIT, userId);
     Long count = redisTemplate.opsForValue().increment(limitKey);

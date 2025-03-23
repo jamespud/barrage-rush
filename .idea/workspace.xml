@@ -5,100 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2f8537c-e475-4532-b796-64b71421da71" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-auth/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-auth/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-auth/src/main/java/com/spud/barrage/auth/AuthApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-auth/src/main/java/com/spud/barrage/auth/AuthApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/constant/ApiConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/constant/ApiConstants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/constant/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/constant/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/exception/BusinessException.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/exception/BarrageException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/util/SnowflakeIdWorker.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-core/src/main/java/com/spud/barrage/util/SnowflakeIdWorker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/config/RedisConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/dto/DanmakuMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/dto/DanmakuMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/dto/DanmakuRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/dto/DanmakuRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/dto/WebSocketRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/dto/WebSocketRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/BaseEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/BaseEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/Room.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/AnchorRoom.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/RoomConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/AnchorRoomConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/RoomUserRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/AnchorRoomRole.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/entity/UserSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/dto/UserSession.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/repository/DanmakuRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/repository/DanmakuRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/RoomService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/RoomService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/impl/RoomServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/impl/RoomServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-data/src/main/java/com/spud/barrage/common/data/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/config/DynamicQueueConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/config/DynamicQueueConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/config/RabbitMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/config/RabbitMQConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/config/RoomTrafficProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/config/RoomTrafficProperties.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/consumer/DanmakuConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/consumer/DanmakuConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/mange/MessageBatchProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/mange/MessageBatchProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/mange/WebSocketManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/mange/WebSocketManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/producer/AbstractRabbitProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/producer/AbstractRabbitProducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/service/RoomTrafficManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/service/RoomTrafficManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/util/ShardingUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/util/ShardingUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-ws/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/barrage-rush-common-ws/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/BarrageRushConnectionProxyApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/BarrageRushConnectionProxyApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/config/ProxyConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/config/ProxyConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/config/ProxyProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/config/ProxyProperties.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/config/WSServerConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/config/WSServerConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/controller/GeoLocationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/controller/GeoLocationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/controller/ProxyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/controller/ProxyController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/service/GeoLocationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/service/GeoLocationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/service/LoadBalancer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-connection-proxy/src/main/java/com/spud/barrage/proxy/service/LoadBalancer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/ConnectionApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/ConnectionApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/config/ConnectionProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/config/ConnectionProperties.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/config/RedisConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/config/RedisConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/config/ServerRegistrationConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/config/ServerRegistrationConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/config/WebSocketConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/config/WebSocketInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/config/WebSocketInitializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/consumer/DanmakuConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/consumer/DanmakuConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/consumer/HeartbeatConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/consumer/HeartbeatConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/controller/ConnectionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/controller/ConnectionController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/controller/MonitorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/controller/MonitorController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/enpoint/DanmakuMessageEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/enpoint/DanmakuMessageEndpoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/enpoint/HeartbeatEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/enpoint/HeartbeatEndpoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/model/UserSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/model/UserSession.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/service/ConnectionMonitorService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/service/ConnectionMonitorService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/service/DanmakuService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/service/DanmakuService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/service/HeartbeatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/service/HeartbeatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/service/SessionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/service/SessionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/service/impl/DanmakuServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/service/impl/DanmakuServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/service/impl/HeartbeatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/service/impl/HeartbeatServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/service/impl/SessionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/service/impl/SessionServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/websocket/DanmakuHandshakeInterceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/websocket/DanmakuHandshakeInterceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/websocket/DanmakuWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/websocket/DanmakuWebSocketHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/websocket/DataWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/websocket/DataWebSocketHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/websocket/HeartbeatWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/websocket/HeartbeatWebSocketHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/java/com/spud/barrage/connection/websocket/WebSocketManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/websocket/WebSocketManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-connection/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-consumer/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-consumer/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-consumer/src/main/java/com/spud/barrage/consumer/config/ConsumerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-consumer/src/main/java/com/spud/barrage/consumer/config/ConsumerConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-consumer/src/main/java/com/spud/barrage/consumer/mq/DanmakuConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-consumer/src/main/java/com/spud/barrage/consumer/mq/DanmakuConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-damaku/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-damaku/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/cache/DanmakuCache.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/controller/DanmakuController.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/controller/DanmakuController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-core/src/main/java/com/spud/barrage/util/SnowflakeIdWorker.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-core/src/main/java/com/spud/barrage/util/SnowflakeIdWorker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-data/src/main/java/com/spud/barrage/common/data/cache/ElementCache.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/CacheManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/CacheManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/ConsumerProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/properties/ConsumerProperties.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/CoreMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/CoreMQConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/DynamicConsumerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/DynamicConsumerConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/RabbitMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/RabbitMQConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/ResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/ResourceManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/RoomManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/RoomManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/RoomTrafficProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/properties/RoomTrafficProperties.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/consumer/ConsistentHashingStrategy.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/consumer/ConsumerInstanceManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/consumer/InstanceChangeListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/consumer/InstanceChangeListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/producer/AbstractRabbitProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/producer/AbstractRabbitProducer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/util/DynamicMQConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/util/DynamicMQProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-common/common-mq/src/main/java/com/spud/barrage/common/mq/config/properties/DynamicMQProperties.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-ws/src/main/java/com/spud/barrage/ws/config/mange/DanmakuHandshakeInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-ws/src/main/java/com/spud/barrage/ws/config/mange/DanmakuWebSocketHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-ws/src/main/java/com/spud/barrage/ws/config/mange/MessageBatchProcessor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-common/common-ws/src/main/java/com/spud/barrage/ws/config/mange/WebSocketManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/DanmakuApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/DanmakuApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/mq/DanmakuProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/mq/DanmakuProducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/service/DanmakuService.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/service/DanmakuService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/service/impl/DanmakuServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-damaku/src/main/java/com/spud/barrage/damaku/service/impl/DanmakuServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-push-server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/barrage-rush-push-server/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/barrage-rush-push-server/src/main/java/com/spud/barrage/push/PushServerApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/TYPE.MD" beforeDir="false" afterPath="$PROJECT_DIR$/doc/TYPE.MD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,6 +58,9 @@
       </MavenGeneralSettings>
     </option>
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 8
@@ -142,25 +75,62 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;JUnit.All in barrage-rush.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.barrage-rush [clean].executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.DanmakuApplication.executor&quot;: &quot;Debug&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/proj/barrage-rush/barrage-rush-common/barrage-rush-common-mq/src/main/java/com/spud/barrage/common/mq/consumer&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;File.Encoding&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\proj\barrage-rush\barrage-rush-common\barrage-rush-common-mq\src\main\java\com\spud\barrage\common\mq\consumer" />
+      <recent name="D:\proj\barrage-rush\barrage-rush-damaku\src\main\java\com\spud\barrage\damaku\mq" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.spud.barrage.damaku.config" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.DanmakuApplication">
+    <configuration name="All in barrage-rush" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="barrage-rush" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BarrageRushConnectionProxyApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="barrage-rush-connection-proxy" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.spud.barrage.proxy.BarrageRushConnectionProxyApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ConnectionApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="barrage-rush-push-server" />
@@ -169,6 +139,26 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="DanmakuApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="barrage-rush-damaku" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.spud.barrage.damaku.DanmakuApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.spud.barrage.damaku.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.DanmakuApplication" />
+        <item itemvalue="JUnit.All in barrage-rush" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -191,11 +181,39 @@
       <workItem from="1742218594941" duration="3685000" />
       <workItem from="1742271121606" duration="594000" />
       <workItem from="1742307001970" duration="2523000" />
-      <workItem from="1742311405313" duration="1185000" />
+      <workItem from="1742311405313" duration="3238000" />
+      <workItem from="1742358505307" duration="1750000" />
+      <workItem from="1742383246229" duration="175000" />
+      <workItem from="1742391208515" duration="1596000" />
+      <workItem from="1742393093028" duration="4687000" />
+      <workItem from="1742445785235" duration="107000" />
+      <workItem from="1742621326696" duration="9064000" />
+      <workItem from="1742638867836" duration="10050000" />
+      <workItem from="1742659410455" duration="1896000" />
+      <workItem from="1742700584498" duration="27000" />
+      <workItem from="1742703567417" duration="2337000" />
+      <workItem from="1742707637607" duration="201000" />
+      <workItem from="1742712807700" duration="8794000" />
+      <workItem from="1742729950012" duration="4530000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

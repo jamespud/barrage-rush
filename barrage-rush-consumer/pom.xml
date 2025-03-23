@@ -5,12 +5,12 @@
   <artifactId>barrage-rush-consumer</artifactId>
   <dependencies>
     <dependency>
-      <artifactId>barrage-rush-common-data</artifactId>
+      <artifactId>common-data</artifactId>
       <groupId>com.spud.barrage</groupId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <artifactId>barrage-rush-common-mq</artifactId>
+      <artifactId>common-mq</artifactId>
       <groupId>com.spud.barrage</groupId>
       <version>1.0-SNAPSHOT</version>
     </dependency>

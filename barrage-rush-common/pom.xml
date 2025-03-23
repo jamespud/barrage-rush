@@ -8,10 +8,11 @@
 
   <modelVersion>4.0.0</modelVersion>
   <modules>
-    <module>barrage-rush-common-core</module>
-    <module>barrage-rush-common-data</module>
-    <module>barrage-rush-common-mq</module>
-    <module>barrage-rush-common-ws</module>
+    <module>common-core</module>
+    <module>common-data</module>
+    <module>common-mq</module>
+    <module>common-ws</module>
+    <module>common-cluster</module>
   </modules>
   <packaging>pom</packaging>
 
