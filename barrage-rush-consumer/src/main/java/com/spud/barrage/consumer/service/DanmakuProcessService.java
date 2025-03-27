@@ -2,7 +2,7 @@ package com.spud.barrage.consumer.service;
 
 import com.spud.barrage.common.data.dto.DanmakuMessage;
 import com.spud.barrage.common.data.repository.DanmakuRepository;
-import com.spud.barrage.constant.ApiConstants;
+import com.spud.barrage.common.core.constant.ApiConstants;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -12,7 +12,7 @@ public class UserToken {
 
   @Id
   private Long userId;
-  
+
   private int tokenVersion;
-  
+
 }

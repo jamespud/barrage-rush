@@ -1,0 +1,86 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api/auth
+
+spring:
+  application:
+    name: barrage-rush-auth
+
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/barrage_rush?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      pool-name: HikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  # JPA配置
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  # Redis配置
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    password:
+    timeout: 5000
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+
+# JWT配置
+jwt:
+  secret: spudbQkAQtLvZs76k2JnQQ1LJJX1JeO9jC8xJ3h7KhcZCYG7s7s3YsPUhV3qfLzt
+  access-token-expiration: 3600000 # 1小时
+  refresh-token-expiration: 604800000 # 7天
+  remember-me-expiration: 604800000 # 7天
+
+# 日志配置
+logging:
+  level:
+    com.spud.barrage: debug
+    org.springframework.security: info
+    org.springframework.web: info
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+
+# SpringDoc OpenAPI配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  paths-to-match: /api/**
+
+# Actuator配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: true

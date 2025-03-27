@@ -30,5 +30,5 @@ public class AnchorRoomConfig extends BaseEntity {
 
   // 房间状态(0:关闭,1:开启)
   private Integer status;
-  
+
 }

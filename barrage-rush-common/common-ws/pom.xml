@@ -3,6 +3,52 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>common-ws</artifactId>
+  <dependencies>
+    <!-- Spring WebSocket -->
+    <dependency>
+      <artifactId>spring-boot-starter-websocket</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+
+    <!-- Jackson for JSON processing -->
+    <dependency>
+      <artifactId>jackson-databind</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
+    </dependency>
+
+    <!-- Redis for session storage -->
+    <dependency>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+
+    <!-- 公共模块依赖 -->
+    <dependency>
+      <artifactId>common-cluster</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <optional>true</optional>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>common-data</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Commons Lang -->
+    <dependency>
+      <artifactId>commons-lang3</artifactId>
+      <groupId>org.apache.commons</groupId>
+    </dependency>
+  </dependencies>
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>

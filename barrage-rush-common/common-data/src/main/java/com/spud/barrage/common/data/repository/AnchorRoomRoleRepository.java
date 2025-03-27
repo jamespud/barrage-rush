@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @date 2025/3/16
  */
 public interface AnchorRoomRoleRepository extends JpaRepository<AnchorRoomRole, Long> {
+
 }

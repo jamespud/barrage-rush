@@ -5,11 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import java.sql.Date;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.cache.annotation.CachePut;
 
 /**
  * @author Spud
@@ -21,17 +20,71 @@ import org.springframework.cache.annotation.CachePut;
 })
 @Getter
 @Setter
+@Builder
 @ToString
 public class DanmakuMessage extends BaseEntity {
 
+  
+  /**
+   * 消息ID
+   */
   @Id
-  private Long id;
+  private Long messageId;
+
+  /**
+   * 房间ID
+   */
   private Long roomId;
+
+  /**
+   * 用户ID
+   */
   private Long userId;
+
+  /**
+   * 用户名称
+   */
+  private String username;
+
+  /**
+   * 用户头像
+   */
+  private String avatar;
+
+  /**
+   * 弹幕内容
+   */
   private String content;
+
+  /**
+   * 弹幕类型
+   */
   private DanmakuType type;
+
+  /**
+   * 弹幕样式
+   */
   private String style;
-  private Long sendTime;
+
+  /**
+   * 弹幕颜色
+   */
+  private String color;
+
+  /**
+   * 弹幕字体大小
+   */
+  private Integer fontSize;
+
+  /**
+   * 时间戳（毫秒）
+   */
+  private Long timestamp;
+
+  /**
+   * 额外数据
+   */
+  private Object extra;
 
   public DanmakuMessage() {
 
@@ -40,16 +93,17 @@ public class DanmakuMessage extends BaseEntity {
   public DanmakuMessage(Long id, Long roomId, Long userId, String content, DanmakuType type,
       String style) {
     // TODO: 唯一ID生成
-    this.id = System.currentTimeMillis();
+    this.messageId = System.currentTimeMillis();
     this.roomId = roomId;
     this.userId = userId;
     this.content = content;
     this.type = type;
     this.style = style;
-    this.sendTime = System.currentTimeMillis();
+    this.timestamp = System.currentTimeMillis();
   }
 
   public DanmakuMessage(Long id, Long userId, DanmakuRequest request) {
-  this(id, request.getRoomId(), userId, request.getContent(), request.getType(), request.getStyle());
+    this(id, request.getRoomId(), userId, request.getContent(), request.getType(),
+        request.getStyle());
   }
 }

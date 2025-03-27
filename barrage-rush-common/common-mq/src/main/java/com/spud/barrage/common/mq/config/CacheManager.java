@@ -2,9 +2,9 @@ package com.spud.barrage.common.mq.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.spud.barrage.common.core.constant.RoomType;
 import com.spud.barrage.common.data.config.RedisConfig;
 import com.spud.barrage.common.mq.util.MqUtils;
-import com.spud.barrage.constant.RoomType;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -35,12 +35,10 @@ public class CacheManager {
   // 房间流量计数器
   static final Cache<Long, Integer> ROOM_VIEWER_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
-
-  @Autowired
-  private ResourceManager resourceManager;
-
   @Autowired
   protected RedisTemplate<String, String> redisTemplate;
+  @Autowired
+  private ResourceManager resourceManager;
 
   private void clearLocalRoomCache(Long roomId) {
     ROOM_TYPE_CACHE.invalidate(roomId);
@@ -77,7 +75,7 @@ public class CacheManager {
    * 只清除房间的队列绑定
    * 必须持房间分布式锁
    */
-  public boolean clearQueue(Long roomId,  RoomType oldType) {
+  public boolean clearQueue(Long roomId, RoomType oldType) {
     boolean success = true;
     try {
       Set<String> roomQueue = getRoomQueue(roomId);

@@ -1,0 +1,75 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: barrage-rush-connection-proxy
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  config:
+    import:
+      - classpath:application-regions.yml
+
+# 弹幕系统集群配置
+barrage:
+  cluster:
+    enabled: true
+    instance-type: proxy
+    heartbeat-interval: 30
+    resource-type: room
+
+# GeoIP2数据库配置
+geoip:
+  database:
+    path: ${GEOIP_DB_PATH:${user.home}/geoip/GeoLite2-City.mmdb}
+  cache:
+    size: 10000
+    expiration: 12
+  default-region: CN
+
+# 令牌配置
+token:
+  secret: ${TOKEN_SECRET:barrage-rush-secret-key}
+  expiration: 300 # 5分钟
+
+# 推送服务器配置
+push-server:
+  url-pattern: ws://%s/ws/room/%d
+  danmaku-url-pattern: ws://%s/ws/danmaku/%d
+  heartbeat-url-pattern: ws://%s/ws/heartbeat/%d
+  proxy-url-pattern: ws://%s/ws/proxy/%d
+  route-by-region: true
+  instance-prefix: push-
+  use-consistent-hash: true
+  proxy-ttl: 3600
+
+# 健康检查配置
+health-check:
+  enabled: true
+  interval: 60000 # 60秒
+  timeout: 5000 # 5秒
+  url-pattern: http://%s/actuator/health
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.spud.barrage: DEBUG
+    org.springframework.web: INFO
+
+# Actuator配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

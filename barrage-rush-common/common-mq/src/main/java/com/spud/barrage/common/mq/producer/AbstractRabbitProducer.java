@@ -1,18 +1,16 @@
 package com.spud.barrage.common.mq.producer;
 
 import com.spud.barrage.common.data.dto.DanmakuMessage;
-import com.spud.barrage.common.mq.config.CacheManager;
 import com.spud.barrage.common.mq.config.CoreMQConfig;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
-
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author Spud

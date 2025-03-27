@@ -1,7 +1,7 @@
 package com.spud.barrage.common.mq.util;
 
+import com.spud.barrage.common.core.constant.RoomType;
 import com.spud.barrage.common.mq.config.RabbitMQConfig;
-import com.spud.barrage.constant.RoomType;
 import lombok.extern.slf4j.Slf4j;
 
 /**

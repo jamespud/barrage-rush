@@ -38,7 +38,7 @@ public class RabbitMQConfig {
   // 管理队列的状态 - {queue类型}:{状态}
   public static final String QUEUE_IDLE = DANMAKU_QUEUE_PREFIX + ":%s:idle";
   public static final String QUEUE_USED = DANMAKU_QUEUE_PREFIX + ":%s:used";
-  
+
   // 共享队列房间映射
   public static final String SHARED_QUEUE_USED_ROOM = DANMAKU_QUEUE_PREFIX + ":shared:used:%d";
 
@@ -47,11 +47,11 @@ public class RabbitMQConfig {
 
   // Redis频道主题，用于监听房间MQ配置变化
   public static final String ROOM_MQ_CHANGE_TOPIC = "room:mq:change";
-  
+
   // 静态引用
   public static int hotViewersThreshold;
   public static int coldViewersThreshold;
-  
+
   /**
    * 初始化静态字段
    */
@@ -59,7 +59,7 @@ public class RabbitMQConfig {
   public void setHotViewersThreshold(int threshold) {
     RabbitMQConfig.hotViewersThreshold = threshold;
   }
-  
+
   @Value("${rabbitmq.room.cold-viewers-threshold:1000}")
   public void setColdViewersThreshold(int threshold) {
     RabbitMQConfig.coldViewersThreshold = threshold;

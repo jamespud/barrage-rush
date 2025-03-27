@@ -1,0 +1,18 @@
+package com.spud.barrage.proxy;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * 弹幕系统连接代理服务启动类
+ *
+ * @author Spud
+ * @date 2025/3/15
+ */
+@SpringBootApplication(scanBasePackages = {"com.spud.barrage"})
+public class ProxyApplication {
+
+  public static void main(String[] args) {
+    SpringApplication.run(ProxyApplication.class, args);
+  }
+} 

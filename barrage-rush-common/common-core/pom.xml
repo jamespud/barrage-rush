@@ -3,6 +3,36 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>common-core</artifactId>
+  <dependencies>
+    <dependency>
+      <artifactId>spring-boot-starter-json</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>common-data</artifactId>
+      <groupId>com.spud.barrage</groupId>
+      <scope>provided</scope>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <artifactId>jjwt-api</artifactId>
+      <groupId>io.jsonwebtoken</groupId>
+      <version>0.12.3</version>
+    </dependency>
+    <dependency>
+      <artifactId>jjwt-impl</artifactId>
+      <groupId>io.jsonwebtoken</groupId>
+      <scope>runtime</scope>
+      <version>0.12.3</version>
+    </dependency>
+    <dependency>
+      <artifactId>jjwt-jackson</artifactId>
+      <groupId>io.jsonwebtoken</groupId>
+      <scope>runtime</scope>
+      <version>0.12.3</version>
+    </dependency>
+  </dependencies>
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -17,35 +47,5 @@
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-json</artifactId>
-    </dependency>
-    <dependency>
-      <artifactId>common-data</artifactId>
-      <groupId>com.spud.barrage</groupId>
-      <version>1.0-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-api</artifactId>
-      <version>0.12.3</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-impl</artifactId>
-      <version>0.12.3</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-jackson</artifactId>
-      <version>0.12.3</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
 
 </project>

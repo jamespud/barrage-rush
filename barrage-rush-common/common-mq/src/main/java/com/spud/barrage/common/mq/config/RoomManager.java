@@ -1,10 +1,10 @@
 package com.spud.barrage.common.mq.config;
 
+import com.spud.barrage.common.core.constant.RoomType;
 import com.spud.barrage.common.data.config.RedisConfig;
 import com.spud.barrage.common.mq.config.properties.DynamicMQProperties;
 import com.spud.barrage.common.mq.config.properties.RoomTrafficProperties;
 import com.spud.barrage.common.mq.util.MqUtils;
-import com.spud.barrage.constant.RoomType;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -26,19 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RoomManager {
 
-  @Autowired
-  private DynamicMQProperties dynamicMQProperties;
-
-  @Autowired
-  private RedisTemplate<String, Object> redisTemplate;
-
-  @Autowired
-  private CacheManager cacheManager;
-
-  private final ThreadPoolExecutor pool;
-  
   static final long LOCK_TIMEOUT = 6000;
-
   // 分布式锁脚本 - 获取锁
   private static final DefaultRedisScript<Long> LOCK_SCRIPT = new DefaultRedisScript<>(
       "if redis.call('setnx', KEYS[1], ARGV[1]) == 1 then " +
@@ -48,7 +36,6 @@ public class RoomManager {
           "  return 0 " +
           "end",
       Long.class);
-
   // 分布式锁脚本 - 释放锁
   private static final DefaultRedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>(
       "if redis.call('get', KEYS[1]) == ARGV[1] then " +
@@ -58,6 +45,13 @@ public class RoomManager {
           "  return 0 " +
           "end",
       Long.class);
+  private final ThreadPoolExecutor pool;
+  @Autowired
+  private DynamicMQProperties dynamicMQProperties;
+  @Autowired
+  private RedisTemplate<String, Object> redisTemplate;
+  @Autowired
+  private CacheManager cacheManager;
 
   public RoomManager(RoomTrafficProperties properties) {
     pool = new ThreadPoolExecutor(properties.getPool().getCoreSize(),
@@ -176,7 +170,6 @@ public class RoomManager {
     cacheManager.clearExchangeAndQueue(roomId, oldType);
     cacheManager.createExchangeAndQueue(roomId, newType);
   }
-  
 
 
   /**
@@ -223,7 +216,7 @@ public class RoomManager {
       return false;
     }
   }
-  
+
   /**
    * 验证房间事件更新间隔
    * @return 是否可以更新

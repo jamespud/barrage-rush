@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AnchorRoomSilenceRepository extends JpaRepository<AnchorRoomSilence, Long> {
-  
+
   List<AnchorRoomSilence> getAnchorRoomSilenceByUserId(Long userId);
 
 }

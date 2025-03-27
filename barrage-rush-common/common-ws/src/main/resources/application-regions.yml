@@ -1,0 +1,32 @@
+# 区域配置
+barrage:
+  regions:
+    # 是否启用区域功能
+    enabled: true
+    # 默认区域代码
+    default-region: CN
+    # 是否允许跨区域代理
+    allow-cross-region-proxy: true
+    # 区域列表
+    region-list:
+      # 中国区域
+      - code: CN
+        name: 中国
+        ws-server-url: ws://${push.server.host:localhost}:${push.server.port:8083}/ws/room/{roomId}
+        available: true
+        default-region: true
+        priority: 0
+      # 美国区域
+      - code: US
+        name: 美国
+        ws-server-url: ws://us-push.example.com:8083/ws/room/{roomId}
+        available: false
+        default-region: false
+        priority: 10
+      # 欧洲区域
+      - code: EU
+        name: 欧洲
+        ws-server-url: ws://eu-push.example.com:8083/ws/room/{roomId}
+        available: false
+        default-region: false
+        priority: 20

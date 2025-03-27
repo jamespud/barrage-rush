@@ -1,87 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <artifactId>barrage-rush-push-server</artifactId>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-              <artifactId>lombok</artifactId>
-              <groupId>org.projectlombok</groupId>
-            </exclude>
-          </excludes>
-        </configuration>
-        <groupId>org.springframework.boot</groupId>
-      </plugin>
-    </plugins>
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.spud.barrage</groupId>
+        <artifactId>barrage-rush</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-  <dependencies>
-    <!-- Spring Boot -->
-    <dependency>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-websocket</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <optional>true</optional>
-    </dependency>
+    <artifactId>barrage-rush-push-server</artifactId>
 
-    <!-- 项目内部依赖 -->
-    <dependency>
-      <artifactId>common-mq</artifactId>
-      <groupId>com.spud.barrage</groupId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <artifactId>common-data</artifactId>
-      <groupId>com.spud.barrage</groupId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-    <!-- Lombok -->
-    <dependency>
-      <artifactId>lombok</artifactId>
-      <groupId>org.projectlombok</groupId>
-      <optional>true</optional>
-    </dependency>
+    <dependencies>
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        
+        <!-- WebSocket相关依赖 -->
+        <dependency>
+            <groupId>com.spud.barrage</groupId>
+            <artifactId>common-ws</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <!-- 集群相关依赖 -->
+        <dependency>
+            <groupId>com.spud.barrage</groupId>
+            <artifactId>common-cluster</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.spud.barrage</groupId>
+            <artifactId>common-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        
+        <!-- 消息队列相关依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
 
-    <!-- Test -->
-    <dependency>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+        <!-- 缓存相关依赖 -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+        
+        <!-- 工具类 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <artifactId>barrage-rush</artifactId>
-    <groupId>com.spud.barrage</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
-
-  <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

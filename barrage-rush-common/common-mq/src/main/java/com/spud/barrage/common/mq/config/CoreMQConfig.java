@@ -78,6 +78,11 @@ public class CoreMQConfig {
     return container;
   }
 
+  private boolean updateRoomBinding(Long roomId) {
+    cacheManager.updateLocalCache(roomId);
+    return false;
+  }
+
   /**
    * 内部类：Redis消息监听器
    */
@@ -99,11 +104,6 @@ public class CoreMQConfig {
         log.error("Failed to process room MQ change event: {}", e.getMessage(), e);
       }
     }
-  }
-
-  private boolean updateRoomBinding(Long roomId) {
-    cacheManager.updateLocalCache(roomId);
-    return false;
   }
 
 

@@ -1,11 +1,11 @@
 package com.spud.barrage.common.mq.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spud.barrage.common.core.constant.ApiConstants;
+import com.spud.barrage.common.core.constant.Constants;
 import com.spud.barrage.common.data.dto.DanmakuMessage;
 import com.spud.barrage.common.data.repository.DanmakuRepository;
 import com.spud.barrage.common.mq.config.DynamicConsumerConfig;
-import com.spud.barrage.constant.ApiConstants;
-import com.spud.barrage.constant.Constants;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +57,7 @@ public class DanmakuConsumer {
 
       // 2. 同步到Redis
       String key = String.format(ApiConstants.REDIS_ROOM_MESSAGES, roomId);
-      redisTemplate.opsForZSet().add(key, danmakuMessage, danmakuMessage.getSendTime());
+      redisTemplate.opsForZSet().add(key, danmakuMessage, danmakuMessage.getTimestamp());
       redisTemplate.expire(key, Constants.ROOM_MESSAGES_EXPIRE, TimeUnit.SECONDS);
 
       log.debug("Consumed danmaku message for room {}: {}", roomId, danmakuMessage);

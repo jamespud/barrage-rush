@@ -11,14 +11,14 @@ import lombok.Data;
 @Data
 @Table(name = "anchor_room_silence")
 public class AnchorRoomSilence {
-  
+
   @Id
   private Long id;
-  
+
   private Long userId;
-  
+
   private Long roomId;
-  
+
   private Long endTime;
-  
+
 }

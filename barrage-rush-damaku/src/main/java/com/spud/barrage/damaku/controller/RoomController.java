@@ -3,7 +3,7 @@ package com.spud.barrage.damaku.controller;
 import com.spud.barrage.common.data.dto.Result;
 import com.spud.barrage.common.data.entity.AnchorRoomConfig;
 import com.spud.barrage.common.data.service.RoomService;
-import com.spud.barrage.constant.ApiConstants;
+import com.spud.barrage.common.core.constant.ApiConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

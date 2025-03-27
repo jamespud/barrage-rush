@@ -18,6 +18,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Configuration
 @EnableCaching
 public class LocalCacheManager {
+
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
     return new LettuceConnectionFactory();

@@ -2,9 +2,9 @@ package com.spud.barrage.common.mq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spud.barrage.common.cluster.manager.InstanceManager;
+import com.spud.barrage.common.core.constant.RoomType;
 import com.spud.barrage.common.data.config.RedisConfig;
 import com.spud.barrage.common.mq.util.MqUtils;
-import com.spud.barrage.constant.RoomType;
 import jakarta.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +56,7 @@ public class DynamicConsumerConfig {
 
   // 记录已绑定的队列
   private final Set<String> boundQueues = ConcurrentHashMap.newKeySet();
-  
+
   @Autowired
   private CacheManager cacheManager;
 
@@ -119,38 +119,17 @@ public class DynamicConsumerConfig {
     container.setConnectionFactory(redisConnectionFactory);
 
     // 监听房间状态变化事件
-    MessageListenerAdapter roomChangeListener = new MessageListenerAdapter(new RoomStatusChangeHandler());
-    container.addMessageListener(roomChangeListener, new ChannelTopic(RabbitMQConfig.ROOM_MQ_CHANGE_TOPIC));
+    MessageListenerAdapter roomChangeListener = new MessageListenerAdapter(
+        new RoomStatusChangeHandler());
+    container.addMessageListener(roomChangeListener,
+        new ChannelTopic(RabbitMQConfig.ROOM_MQ_CHANGE_TOPIC));
 
     // 监听实例变化事件
-    MessageListenerAdapter instanceChangeListener = new MessageListenerAdapter(new InstanceChangeHandler());
+    MessageListenerAdapter instanceChangeListener = new MessageListenerAdapter(
+        new InstanceChangeHandler());
     container.addMessageListener(instanceChangeListener, new ChannelTopic("mq:instance:change"));
 
     container.start();
-  }
-
-  // 添加实例变化处理器
-  private class InstanceChangeHandler implements MessageListener {
-    @Override
-    public void onMessage(Message message, byte[] pattern) {
-      try {
-        String change = new String(message.getBody());
-
-        // 处理实例离线事件
-        if (change.startsWith("offline:")) {
-          String offlineInstanceId = change.substring("offline:".length());
-          log.info("Detected instance offline: {}", offlineInstanceId);
-          // 需要重新平衡房间分配
-          rebalanceRooms();
-        } else {
-          // 实例上线或其他变更
-          log.info("Instance change detected: {}", change);
-          rebalanceRooms();
-        }
-      } catch (Exception e) {
-        log.error("Failed to process instance change event: {}", e.getMessage(), e);
-      }
-    }
   }
 
   // 重新平衡房间分配
@@ -214,36 +193,6 @@ public class DynamicConsumerConfig {
   @Bean
   public MessageListenerAdapter roomStatusChangeListener() {
     return new MessageListenerAdapter(new RoomStatusChangeHandler());
-  }
-
-  // Redis消息监听器处理器
-  private class RoomStatusChangeHandler implements MessageListener {
-    @Override
-    public void onMessage(Message message, byte[] pattern) {
-      try {
-        String body = new String(message.getBody());
-        Long roomId = objectMapper.readValue(body, Long.class);
-
-        // 只处理由当前实例负责的房间
-        if (instanceManager.isResponsibleFor(roomId)) {
-          RoomType roomType = cacheManager.getRoomType(roomId);
-
-          // 先解绑旧的队列
-          Set<String> oldQueues = boundQueues.stream()
-              .filter(q -> q.contains("." + roomId + "."))
-              .collect(Collectors.toSet());
-
-          for (String queueName : oldQueues) {
-            unbindConsumerFromQueue(queueName);
-          }
-
-          // 绑定新的队列
-          bindConsumerToRoom(roomId, roomType);
-        }
-      } catch (Exception e) {
-        log.error("Failed to process room status change event: {}", e.getMessage(), e);
-      }
-    }
   }
 
   /**
@@ -353,14 +302,6 @@ public class DynamicConsumerConfig {
         resourceManager.buildExchangeName(roomType, roomId));
   }
 
-  /**
-   * 房间MQ配置变化事件
-   */
-  @Data
-  public static class RoomMqChangeEvent {
-    private Long roomId;
-  }
-
   // 获取分布式锁
   private boolean acquireLock(String lockKey, String lockValue, long timeout) {
     try {
@@ -401,6 +342,71 @@ public class DynamicConsumerConfig {
     } catch (Exception e) {
       log.error("Error releasing lock {}: {}", lockKey, e.getMessage());
       return false;
+    }
+  }
+
+  /**
+   * 房间MQ配置变化事件
+   */
+  @Data
+  public static class RoomMqChangeEvent {
+
+    private Long roomId;
+  }
+
+  // 添加实例变化处理器
+  private class InstanceChangeHandler implements MessageListener {
+
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+      try {
+        String change = new String(message.getBody());
+
+        // 处理实例离线事件
+        if (change.startsWith("offline:")) {
+          String offlineInstanceId = change.substring("offline:".length());
+          log.info("Detected instance offline: {}", offlineInstanceId);
+          // 需要重新平衡房间分配
+          rebalanceRooms();
+        } else {
+          // 实例上线或其他变更
+          log.info("Instance change detected: {}", change);
+          rebalanceRooms();
+        }
+      } catch (Exception e) {
+        log.error("Failed to process instance change event: {}", e.getMessage(), e);
+      }
+    }
+  }
+
+  // Redis消息监听器处理器
+  private class RoomStatusChangeHandler implements MessageListener {
+
+    @Override
+    public void onMessage(Message message, byte[] pattern) {
+      try {
+        String body = new String(message.getBody());
+        Long roomId = objectMapper.readValue(body, Long.class);
+
+        // 只处理由当前实例负责的房间
+        if (instanceManager.isResponsibleFor(roomId)) {
+          RoomType roomType = cacheManager.getRoomType(roomId);
+
+          // 先解绑旧的队列
+          Set<String> oldQueues = boundQueues.stream()
+              .filter(q -> q.contains("." + roomId + "."))
+              .collect(Collectors.toSet());
+
+          for (String queueName : oldQueues) {
+            unbindConsumerFromQueue(queueName);
+          }
+
+          // 绑定新的队列
+          bindConsumerToRoom(roomId, roomType);
+        }
+      } catch (Exception e) {
+        log.error("Failed to process room status change event: {}", e.getMessage(), e);
+      }
     }
   }
 }

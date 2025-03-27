@@ -36,12 +36,13 @@ public class RoomTrafficProperties {
 
   // 房间交换机缓存过期时间（秒）
   private int exchangeCacheExpire = 300;
-  
+
   // 线程池配置
   private PoolProperties pool = new PoolProperties();
-  
+
   @Data
   public static class PoolProperties {
+
     // 核心线程数
     private int coreSize = 10;
     private int maxSize = 10;

@@ -1,5 +1,6 @@
 package com.spud.barrage.consumer.mq;
 
+import com.spud.barrage.common.core.constant.RoomType;
 import com.spud.barrage.common.data.dto.DanmakuMessage;
 import com.spud.barrage.common.mq.config.DynamicConsumerConfig;
 import com.spud.barrage.consumer.service.DanmakuProcessService;
@@ -153,7 +154,7 @@ public class DanmakuConsumer implements DisposableBean {
     if (dynamicConsumerConfig != null) {
       try {
         dynamicConsumerConfig.bindConsumerToRoom(Long.parseLong(roomId),
-            com.spud.barrage.constant.RoomType.HOT);
+            RoomType.HOT);
       } catch (Exception e) {
         log.error("Failed to notify dynamic config for hot room {}: {}",
             roomId, e.getMessage(), e);

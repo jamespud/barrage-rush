@@ -26,5 +26,5 @@ public class DanmakuRequest {
   private DanmakuType type;
 
   private String style;
-  
+
 }

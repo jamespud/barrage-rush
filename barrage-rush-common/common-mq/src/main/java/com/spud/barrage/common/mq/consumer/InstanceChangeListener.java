@@ -1,10 +1,10 @@
 package com.spud.barrage.common.mq.consumer;
 
 import com.spud.barrage.common.cluster.manager.InstanceManager;
+import com.spud.barrage.common.core.constant.RoomType;
 import com.spud.barrage.common.data.config.RedisConfig;
 import com.spud.barrage.common.mq.config.CacheManager;
 import com.spud.barrage.common.mq.config.DynamicConsumerConfig;
-import com.spud.barrage.constant.RoomType;
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Set;
@@ -23,20 +23,21 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class InstanceChangeListener {
+
+  // Redis订阅频道名称
+  private static final String INSTANCE_CHANGE_CHANNEL = "mq:instance:change";
   private final InstanceManager instanceManager;
   private final DynamicConsumerConfig consumerConfig;
   private final RedisTemplate<String, Object> redisTemplate;
   private final CacheManager cacheManager;
 
-  // Redis订阅频道名称
-  private static final String INSTANCE_CHANGE_CHANNEL = "mq:instance:change";
-
   @PostConstruct
   public void init() {
     // 监听实例变化事件
-    MessageListenerAdapter adapter = new MessageListenerAdapter((MessageListener) (message, pattern) -> {
-      rebalanceRooms();
-    });
+    MessageListenerAdapter adapter = new MessageListenerAdapter(
+        (MessageListener) (message, pattern) -> {
+          rebalanceRooms();
+        });
 
     RedisMessageListenerContainer container = new RedisMessageListenerContainer();
     container.setConnectionFactory(redisTemplate.getConnectionFactory());
