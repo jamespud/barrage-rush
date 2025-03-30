@@ -2,6 +2,7 @@ package com.spud.barrage.common.core.constant;
 
 /**
  * 房间类型枚举
+ * 
  * @author Spud
  * @date 2025/3/19
  */

@@ -36,125 +36,104 @@ public class ApiResult<T> implements Serializable {
   private T data;
 
   /**
+   * 创建一个基础结果对象
+   */
+  private static <T> ApiResult<T> create(Integer code, String message, T data) {
+    return ApiResult.<T>builder()
+        .code(code)
+        .message(message)
+        .data(data)
+        .build();
+  }
+
+  /**
+   * 创建一个基于ResultCode的结果对象
+   */
+  private static <T> ApiResult<T> create(ResultCode resultCode, T data) {
+    return create(resultCode.getCode(), resultCode.getMessage(), data);
+  }
+
+  /**
    * 请求成功
    */
   public static <T> ApiResult<T> success() {
-    return ApiResult.<T>builder()
-        .code(ResultCode.SUCCESS.getCode())
-        .message(ResultCode.SUCCESS.getMessage())
-        .build();
+    return create(ResultCode.SUCCESS, null);
   }
 
   /**
    * 请求成功，带数据
    */
   public static <T> ApiResult<T> success(T data) {
-    return ApiResult.<T>builder()
-        .code(ResultCode.SUCCESS.getCode())
-        .message(ResultCode.SUCCESS.getMessage())
-        .data(data)
-        .build();
+    return create(ResultCode.SUCCESS, data);
   }
 
   /**
    * 请求成功，自定义消息和数据
    */
   public static <T> ApiResult<T> success(String message, T data) {
-    return ApiResult.<T>builder()
-        .code(ResultCode.SUCCESS.getCode())
-        .message(message)
-        .data(data)
-        .build();
+    return create(ResultCode.SUCCESS.getCode(), message, data);
   }
 
   /**
    * 请求失败
    */
   public static <T> ApiResult<T> failed() {
-    return ApiResult.<T>builder()
-        .code(ResultCode.FAILED.getCode())
-        .message(ResultCode.FAILED.getMessage())
-        .build();
+    return create(ResultCode.FAILED, null);
   }
 
   /**
    * 请求失败，自定义消息
    */
   public static <T> ApiResult<T> failed(String message) {
-    return ApiResult.<T>builder()
-        .code(ResultCode.FAILED.getCode())
-        .message(message)
-        .build();
+    return create(ResultCode.FAILED.getCode(), message, null);
   }
 
   /**
    * 请求失败，自定义状态码和消息
    */
   public static <T> ApiResult<T> failed(ResultCode resultCode) {
-    return ApiResult.<T>builder()
-        .code(resultCode.getCode())
-        .message(resultCode.getMessage())
-        .build();
+    return create(resultCode, null);
   }
 
   /**
    * 请求失败，自定义状态码、消息和数据
    */
   public static <T> ApiResult<T> failed(ResultCode resultCode, T data) {
-    return ApiResult.<T>builder()
-        .code(resultCode.getCode())
-        .message(resultCode.getMessage())
-        .data(data)
-        .build();
+    return create(resultCode, data);
   }
 
   /**
    * 请求失败，自定义状态码和消息
    */
   public static <T> ApiResult<T> failed(Integer code, String message) {
-    return ApiResult.<T>builder()
-        .code(code)
-        .message(message)
-        .build();
+    return create(code, message, null);
   }
 
   /**
    * 参数验证失败
    */
   public static <T> ApiResult<T> validateFailed() {
-    return ApiResult.<T>builder()
-        .code(ResultCode.VALIDATE_FAILED.getCode())
-        .message(ResultCode.VALIDATE_FAILED.getMessage())
-        .build();
+    return create(ResultCode.VALIDATE_FAILED, null);
   }
 
   /**
    * 参数验证失败，自定义消息
    */
   public static <T> ApiResult<T> validateFailed(String message) {
-    return ApiResult.<T>builder()
-        .code(ResultCode.VALIDATE_FAILED.getCode())
-        .message(message)
-        .build();
+    return create(ResultCode.VALIDATE_FAILED.getCode(), message, null);
   }
 
   /**
    * 未登录
    */
   public static <T> ApiResult<T> unauthorized() {
-    return ApiResult.<T>builder()
-        .code(ResultCode.UNAUTHORIZED.getCode())
-        .message(ResultCode.UNAUTHORIZED.getMessage())
-        .build();
+    return create(ResultCode.UNAUTHORIZED, null);
   }
 
   /**
    * 未授权
    */
   public static <T> ApiResult<T> forbidden() {
-    return ApiResult.<T>builder()
-        .code(ResultCode.FORBIDDEN.getCode())
-        .message(ResultCode.FORBIDDEN.getMessage())
-        .build();
+    return create(ResultCode.FORBIDDEN, null);
   }
 }

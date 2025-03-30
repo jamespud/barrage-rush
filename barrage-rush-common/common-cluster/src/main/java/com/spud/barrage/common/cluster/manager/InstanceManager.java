@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -37,7 +36,7 @@ public class InstanceManager {
   // 心跳初始延迟除数
   private static final int HEARTBEAT_INITIAL_DELAY_DIVISOR = 4;
   // 实例键格式
-  private static final String INSTANCE_KEY_FORMAT = "cluster:%s:instances";
+  private static final String INSTANCE_KEY_FORMAT = "cluster:%s:instance";
   // 实例变更通道格式
   private static final String INSTANCE_CHANGE_CHANNEL_FORMAT = "cluster:%s:instance-change";
   // 关闭等待超时（秒）
@@ -146,11 +145,9 @@ public class InstanceManager {
     redisTemplate.execute(
         HEARTBEAT_SCRIPT,
         Collections.singletonList(instancesKey),
-        HEARTBEAT_SCRIPT,
-        Collections.singletonList(instancesKey),
         instanceId,
         String.valueOf(System.currentTimeMillis()),
-        String.valueOf(heartbeatTtl * 2));
+        String.valueOf(heartbeatTtl * HEARTBEAT_TTL_MULTIPLIER));
     redisTemplate.convertAndSend(instanceChangeChannel, "add:" + instanceId);
   }
 
@@ -159,13 +156,14 @@ public class InstanceManager {
    */
   private void startHeartbeat() {
     heartbeatScheduler.scheduleAtFixedRate(() -> {
-      try {
-        sendHeartbeat();
-        updateHashRing();
-      } catch (Exception e) {
-        log.error("Error in heartbeat: {}", e.getMessage(), e);
-      }
-    }, heartbeatTtl / 4, heartbeatTtl / 2, TimeUnit.SECONDS);
+          try {
+            sendHeartbeat();
+            updateHashRing();
+          } catch (Exception e) {
+            log.error("Error in heartbeat: {}", e.getMessage(), e);
+          }
+        }, heartbeatTtl / HEARTBEAT_INITIAL_DELAY_DIVISOR,
+        heartbeatTtl / HEARTBEAT_INTERVAL_DIVISOR, TimeUnit.SECONDS);
   }
 
   /**
@@ -175,11 +173,9 @@ public class InstanceManager {
     redisTemplate.execute(
         HEARTBEAT_SCRIPT,
         Collections.singletonList(instancesKey),
-        HEARTBEAT_SCRIPT,
-        Collections.singletonList(instancesKey),
         instanceId,
         String.valueOf(System.currentTimeMillis()),
-        String.valueOf(heartbeatTtl * 2));
+        String.valueOf(heartbeatTtl * HEARTBEAT_TTL_MULTIPLIER));
   }
 
   /**
@@ -187,12 +183,9 @@ public class InstanceManager {
    */
   private void setupRedisListeners() {
     // 创建消息监听器
-    MessageListener listener = new MessageListener() {
-      @Override
-      public void onMessage(Message message, byte[] pattern) {
-        String body = new String(message.getBody());
-        handleInstanceChangeEvent(body);
-      }
+    MessageListener listener = (message, pattern) -> {
+      String body = new String(message.getBody());
+      handleInstanceChangeEvent(body);
     };
 
     MessageListenerAdapter adapter = new MessageListenerAdapter(listener);
@@ -385,7 +378,7 @@ public class InstanceManager {
       // 关闭心跳线程
       heartbeatScheduler.shutdown();
       try {
-        if (!heartbeatScheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+        if (!heartbeatScheduler.awaitTermination(SHUTDOWN_WAIT_TIMEOUT, TimeUnit.SECONDS)) {
           heartbeatScheduler.shutdownNow();
         }
       } catch (InterruptedException e) {
@@ -419,14 +412,14 @@ public class InstanceManager {
   /**
    * 实例变更事件
    */
+  @Getter
   public static class ChangeEvent {
 
     // 事件类型
-    @Getter
     private final ChangeEventType type;
 
     // 变更的实例ID
-    @Getter
+    
     private final String instanceId;
 
     public ChangeEvent(ChangeEventType type, String instanceId) {
@@ -435,4 +428,3 @@ public class InstanceManager {
     }
   }
 }
-  
