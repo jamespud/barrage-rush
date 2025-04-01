@@ -19,6 +19,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
+ * 房间管理器
+ * 负责管理房间的MQ配置和状态
+ * 定期检查房间热度并更新房间类型和MQ绑定
+ * 
  * @author Spud
  * @date 2025/3/22
  */
@@ -26,7 +30,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class RoomManager {
 
-  static final long LOCK_TIMEOUT = 6000;
+  static final long LOCK_TIMEOUT = 10000; // 增加锁超时时间为10秒
+
   // 分布式锁脚本 - 获取锁
   private static final DefaultRedisScript<Long> LOCK_SCRIPT = new DefaultRedisScript<>(
       "if redis.call('setnx', KEYS[1], ARGV[1]) == 1 then " +
@@ -36,6 +41,7 @@ public class RoomManager {
           "  return 0 " +
           "end",
       Long.class);
+
   // 分布式锁脚本 - 释放锁
   private static final DefaultRedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>(
       "if redis.call('get', KEYS[1]) == ARGV[1] then " +
@@ -45,23 +51,37 @@ public class RoomManager {
           "  return 0 " +
           "end",
       Long.class);
+
   private final ThreadPoolExecutor pool;
+
   @Autowired
   private DynamicMQProperties dynamicMQProperties;
+
   @Autowired
   private RedisTemplate<String, Object> redisTemplate;
+
   @Autowired
   private CacheManager cacheManager;
 
   public RoomManager(RoomTrafficProperties properties) {
-    pool = new ThreadPoolExecutor(properties.getPool().getCoreSize(),
+    // 初始化处理线程池
+    pool = new ThreadPoolExecutor(
+        properties.getPool().getCoreSize(),
         properties.getPool().getMaxSize(),
         properties.getPool().getKeepAlive(),
         TimeUnit.SECONDS,
         new LinkedBlockingQueue<>(1000),
         new ThreadPoolExecutor.CallerRunsPolicy());
+    log.info("RoomManager initialized with thread pool: core={}, max={}, keepAlive={}s",
+        properties.getPool().getCoreSize(),
+        properties.getPool().getMaxSize(),
+        properties.getPool().getKeepAlive());
   }
 
+  /**
+   * 定时任务: 每60秒检查活跃房间状态
+   * 异步处理每个房间的状态更新
+   */
   @Scheduled(fixedRate = 60000)
   public void schedule() {
     log.info("Starting room status refresh task");
@@ -74,9 +94,9 @@ public class RoomManager {
         return;
       }
 
-      log.info("Found {} active rooms", activeRooms.size());
+      log.info("Found {} active rooms to process", activeRooms.size());
 
-      // 批量获取所有房间的观众数量
+      // 批量处理所有活跃房间
       for (String roomKey : activeRooms) {
         try {
           // 提取房间ID
@@ -85,7 +105,7 @@ public class RoomManager {
             continue;
           }
 
-          // 提交任务到线程池处理房间状态
+          // 提交任务到线程池异步处理房间状态
           CompletableFuture.runAsync(() -> processRoomStatus(roomId), pool)
               .exceptionally(e -> {
                 log.error("Error processing room status for room {}: {}", roomId, e.getMessage(),
@@ -103,50 +123,63 @@ public class RoomManager {
 
   /**
    * 处理房间状态
-   * 更新Redis中的房间ex和队列
-   * 更新Caffeine中的房间ex和队列
+   * 基于房间热度更新MQ资源分配
+   * 
    * @param roomId 房间ID
    */
   public void processRoomStatus(Long roomId) {
     try {
-
-      boolean eventFlag = validateRoomEvent(roomId);
-      if (!eventFlag) {
-        // 不能更改房间状态就从redis获取房间类型
+      // 验证是否可以更新房间状态
+      boolean canUpdateRoom = validateRoomEvent(roomId);
+      if (!canUpdateRoom) {
+        // 不能更改房间状态，只更新本地缓存
+        log.debug("Skipping room status update for roomId={}, updated too recently", roomId);
         cacheManager.updateLocalCache(roomId);
         return;
       }
 
-      // 尝试获取分布式锁
+      // 尝试获取分布式锁，防止多个节点同时更新
       String lockKey = String.format(RedisConfig.PER_ROOM_STATE, roomId);
       String lockValue = String.valueOf(Thread.currentThread().threadId());
       boolean locked = acquireLock(lockKey, lockValue, LOCK_TIMEOUT);
+
       if (!locked) {
         log.info("Failed to acquire lock for room {}, another process is updating it", roomId);
         return;
       }
-      // 获取旧的房间类型
-      RoomType oldType = cacheManager.getRoomType(roomId);
-      Integer viewerCount = cacheManager.getViewerCount(roomId);
-      // 根据观众数判断房间类型
-      RoomType newType = MqUtils.determineRoomType(viewerCount);
 
-      // 拿到分布式锁后，无论是否发生类型变化，都要进行房间状态更新
       try {
-        log.info("Room {} type changing from {} to {}", roomId, oldType, newType);
+        // 获取当前房间类型和观众数
+        RoomType oldType = cacheManager.getRoomType(roomId);
+        Integer viewerCount = cacheManager.getViewerCount(roomId);
+
+        // 根据观众数确定新的房间类型
+        RoomType newType = MqUtils.determineRoomType(viewerCount);
+
+        // 无论是否发生类型变化，都要进行房间状态更新
+        log.info("Room {} status: viewers={}, type changing from {} to {}",
+            roomId, viewerCount, oldType, newType);
+
         // 更新本地缓存
         CacheManager.ROOM_TYPE_CACHE.put(roomId, newType);
-        // 根据房间类型变化规则进行处理
-        handleRoomTypeChange(roomId, oldType, newType);
-        // 更新更新时间
-        redisTemplate.opsForValue()
-            .set(String.format(RedisConfig.ROOM_TYPE_CHANGE, roomId), System.currentTimeMillis());
-        // 发布房间状态变化事件
-        publishRoomStatusChangeEvent(roomId);
 
-        log.info("Successfully updated room {} type from {} to {}", roomId, oldType, newType);
+        // 根据房间类型变化规则更新MQ资源
+        boolean updated = handleRoomTypeChange(roomId, oldType, newType);
+
+        if (updated) {
+          // 更新状态变更时间
+          redisTemplate.opsForValue()
+              .set(String.format(RedisConfig.ROOM_TYPE_CHANGE, roomId), System.currentTimeMillis());
+
+          // 发布房间状态变化事件，通知其他节点
+          publishRoomStatusChangeEvent(roomId);
+
+          log.info("Successfully updated room {} type from {} to {}", roomId, oldType, newType);
+        } else {
+          log.warn("Failed to update MQ resources for room {}", roomId);
+        }
       } finally {
-        // 释放锁
+        // 无论处理结果如何，都要释放锁
         releaseLock(lockKey, lockValue);
       }
     } catch (Exception e) {
@@ -155,37 +188,115 @@ public class RoomManager {
   }
 
   /**
-   * 发布房间状态变化事件
+   * 发布房间状态变化事件，通知系统中其他组件
+   * 
+   * @param roomId 房间ID
    */
   private void publishRoomStatusChangeEvent(Long roomId) {
-    // 发布Redis事件
-    redisTemplate.convertAndSend(RabbitMQConfig.ROOM_MQ_CHANGE_TOPIC, roomId.toString());
-  }
-
-  /**
-   * 处理房间类型变化
-   */
-  private void handleRoomTypeChange(Long roomId, RoomType oldType, RoomType newType) {
-    // TODO: 暂时使用: 清除现有绑定，根据新状态创建新的绑定
-    cacheManager.clearExchangeAndQueue(roomId, oldType);
-    cacheManager.createExchangeAndQueue(roomId, newType);
-  }
-
-
-  /**
-   * 从房间键中提取房间ID
-   */
-  private Long extractRoomId(String roomKey) {
     try {
-      return Long.parseLong(roomKey.split(":")[1]);
+      redisTemplate.convertAndSend(RabbitMQConfig.ROOM_MQ_CHANGE_TOPIC, roomId.toString());
+      log.debug("Published room MQ change event for roomId={}", roomId);
     } catch (Exception e) {
-      log.error("Failed to extract room ID from key {}: {}", roomKey, e.getMessage(), e);
-      return null;
+      log.error("Failed to publish room status change event: {}", e.getMessage(), e);
     }
   }
 
   /**
+   * 处理房间类型变化
+   * 根据新旧类型，更新交换机和队列的绑定关系
+   * 
+   * @param roomId  房间ID
+   * @param oldType 旧房间类型
+   * @param newType 新房间类型
+   * @return 是否成功更新
+   */
+  private boolean handleRoomTypeChange(Long roomId, RoomType oldType, RoomType newType) {
+    try {
+      // 如果房间类型没有变化，只在首次分配时更新资源
+      if (oldType == newType) {
+        // 检查是否已有资源分配
+        Set<String> exchanges = cacheManager.getRoomExchange(roomId);
+        Set<String> queues = cacheManager.getRoomQueue(roomId);
+
+        // 如果已有资源分配，无需再更新
+        if (!exchanges.isEmpty() && !queues.isEmpty()) {
+          log.debug("Room {} type unchanged and resources already allocated", roomId);
+          return true;
+        }
+      }
+
+      // 清除旧的资源绑定
+      log.debug("Clearing old resources for room {}", roomId);
+      cacheManager.clearExchangeAndQueue(roomId, oldType);
+
+      // 根据新类型创建新的资源绑定
+      log.debug("Creating new resources for room {} with type {}", roomId, newType);
+      cacheManager.createExchangeAndQueue(roomId, newType);
+
+      // 针对热门和超热门房间，根据需要创建额外分片
+      if (newType == RoomType.HOT || newType == RoomType.SUPER_HOT) {
+        int shardCount = getShardCountForType(newType);
+        createAdditionalShards(roomId, newType, shardCount);
+      }
+
+      return true;
+    } catch (Exception e) {
+      log.error("Error handling room type change for room {}: {}", roomId, e.getMessage(), e);
+      return false;
+    }
+  }
+
+  /**
+   * 为热门房间创建额外的分片队列
+   * 
+   * @param roomId     房间ID
+   * @param type       房间类型
+   * @param shardCount 分片数量
+   */
+  private void createAdditionalShards(Long roomId, RoomType type, int shardCount) {
+    try {
+      // 从第1个分片开始创建（0号分片由createExchangeAndQueue创建）
+      for (int i = 1; i < shardCount; i++) {
+        String queueName = MqUtils.generateQueueName(roomId, type, i);
+        redisTemplate.opsForSet().add(String.format(RedisConfig.ROOM_QUEUE, roomId), queueName);
+        log.debug("Created additional shard queue {} for room {}", queueName, roomId);
+      }
+    } catch (Exception e) {
+      log.error("Failed to create additional shards for room {}: {}", roomId, e.getMessage(), e);
+    }
+  }
+
+  /**
+   * 根据房间类型确定分片数量
+   * 
+   * @param type 房间类型
+   * @return 分片数量
+   */
+  private int getShardCountForType(RoomType type) {
+    return switch (type) {
+      case SUPER_HOT -> 5; // 超热门房间使用5个分片
+      case HOT -> 3; // 热门房间使用3个分片
+      default -> 1; // 其他类型使用1个分片
+    };
+  }
+
+  /**
+   * 从房间键中提取房间ID
+   * 
+   * @param roomKey 房间键
+   * @return 房间ID
+   */
+  private Long extractRoomId(String roomKey) {
+    return MqUtils.extractRoomId(roomKey);
+  }
+
+  /**
    * 获取分布式锁
+   * 
+   * @param lockKey   锁的键
+   * @param lockValue 锁的值（用于标识锁的持有者）
+   * @param timeout   锁的超时时间（毫秒）
+   * @return 是否成功获取锁
    */
   private boolean acquireLock(String lockKey, String lockValue, long timeout) {
     try {
@@ -203,6 +314,10 @@ public class RoomManager {
 
   /**
    * 释放分布式锁
+   * 
+   * @param lockKey   锁的键
+   * @param lockValue 锁的值（用于验证锁的持有者）
+   * @return 是否成功释放锁
    */
   private boolean releaseLock(String lockKey, String lockValue) {
     try {
@@ -219,30 +334,23 @@ public class RoomManager {
 
   /**
    * 验证房间事件更新间隔
+   * 防止频繁更新同一房间的状态
+   * 
+   * @param roomId 房间ID
    * @return 是否可以更新
    */
   public boolean validateRoomEvent(Long roomId) {
-    long lastEventTimestamp = getLatestRoomEvent(roomId);
-    return System.currentTimeMillis() - lastEventTimestamp
-        >= dynamicMQProperties.getRoomEventChangeInterval();
-  }
+    long lastEventTimestamp = cacheManager.getLatestRoomEvent(roomId);
+    long currentTime = System.currentTimeMillis();
+    long interval = dynamicMQProperties.getRoomEventChangeInterval();
 
-  /**
-   * 获取房间最新事件时间
-   * @return 事件时间戳
-   */
-  protected long getLatestRoomEvent(Long roomId) {
-    // 本地不缓存更新时间
-    Object object = redisTemplate.opsForValue()
-        .get(String.format(RedisConfig.ROOM_MQ_EVENT, roomId));
-    if (Objects.isNull(object)) {
-      return -1L;
+    boolean canUpdate = (currentTime - lastEventTimestamp) >= interval;
+
+    if (!canUpdate) {
+      log.debug("Room {} event interval check failed: last={}, current={}, required={}ms",
+          roomId, lastEventTimestamp, currentTime, interval);
     }
-    try {
-      return Long.parseLong(object.toString());
-    } catch (NumberFormatException e) {
-      log.error("Invalid event timestamp for room {}: {}", roomId, object);
-      return -1L;
-    }
+
+    return canUpdate;
   }
 }

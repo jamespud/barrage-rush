@@ -7,17 +7,28 @@ import org.springframework.stereotype.Component;
 /**
  * RabbitMQ配置
  * <p>
- * exchange分为共享和独享两种类型，共享类型的exchange可以被多个queue绑定，独享类型的exchange只能被一个queue绑定
- * 共享类型的exchange为topic，独享类型的exchange为direct
+ * 基于房间流量和热度，管理消息队列资源分配的配置类
+ * </p>
  * <p>
- * queue分为共享和独享两种类型，共享类型的queue可以换绑exchange，独享类型的queue仅能绑定exchange一次，且不能换绑
+ * exchange分为共享和独享两种类型:
+ * - 共享类型: 可被多个queue绑定，类型为topic
+ * - 独享类型: 一般只绑定一个queue，类型为direct
+ * </p>
  * <p>
- * routing key用于区分共享exchange不同的queue
+ * queue分为共享和独享两种类型:
+ * - 共享类型: 用于冷门房间，多个房间共享同一队列
+ * - 独享类型: 用于热门房间，每个房间独立队列，热度高的可以有多个分片
+ * </p>
  * <p>
- * 直播间与exchange、queue、routing key的关系见 {@link RedisConfig}
+ * 房间类型与资源分配关系:
+ * - 超热门: 独享exchange，多分片队列 (5+)
+ * - 热门: 独享exchange，多分片队列 (2-4)
+ * - 普通: 独享exchange，独享队列
+ * - 冷门: 共享exchange，共享队列
+ * </p>
  *
  * @author Spud
- * @date 2025/3/11
+ * @date 2025/4/01
  */
 @Component
 public class RabbitMQConfig {
@@ -48,19 +59,34 @@ public class RabbitMQConfig {
   // Redis频道主题，用于监听房间MQ配置变化
   public static final String ROOM_MQ_CHANGE_TOPIC = "room:mq:change";
 
-  // 静态引用
-  public static int hotViewersThreshold;
-  public static int coldViewersThreshold;
+  // 房间类型阈值配置
+  public static int superHotViewersThreshold; // 超热门阈值
+  public static int hotViewersThreshold; // 热门阈值
+  public static int coldViewersThreshold; // 冷门阈值
 
   /**
-   * 初始化静态字段
+   * 初始化超热门阈值
+   * 默认10000观众为超热门直播间
    */
-  @Value("${rabbitmq.room.hot-viewers-threshold:30000}")
+  @Value("${rabbitmq.room.super-hot-viewers-threshold:10000}")
+  public void setSuperHotViewersThreshold(int threshold) {
+    RabbitMQConfig.superHotViewersThreshold = threshold;
+  }
+
+  /**
+   * 初始化热门阈值
+   * 默认1000观众为热门直播间
+   */
+  @Value("${rabbitmq.room.hot-viewers-threshold:1000}")
   public void setHotViewersThreshold(int threshold) {
     RabbitMQConfig.hotViewersThreshold = threshold;
   }
 
-  @Value("${rabbitmq.room.cold-viewers-threshold:1000}")
+  /**
+   * 初始化冷门阈值
+   * 默认10观众以下为冷门直播间
+   */
+  @Value("${rabbitmq.room.cold-viewers-threshold:10}")
   public void setColdViewersThreshold(int threshold) {
     RabbitMQConfig.coldViewersThreshold = threshold;
   }

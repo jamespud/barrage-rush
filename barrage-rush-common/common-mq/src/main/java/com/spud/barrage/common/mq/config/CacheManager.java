@@ -26,17 +26,22 @@ public class CacheManager {
   // 房间分类Map缓存，避免频繁查询Redis
   static final Cache<Long, RoomType> ROOM_TYPE_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
+  
   // 房间ex Map，记录当前房间的ex
   static final Cache<Long, Set<String>> ROOM_EXCHANGE_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
+  
   // 房间队列Map，记录当前房间的队列
   static final Cache<Long, Set<String>> ROOM_QUEUE_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
+  
   // 房间流量计数器
   static final Cache<Long, Integer> ROOM_VIEWER_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
+  
   @Autowired
   protected RedisTemplate<String, String> redisTemplate;
+  
   @Autowired
   private ResourceManager resourceManager;
 
@@ -52,7 +57,7 @@ public class CacheManager {
     getRoomType(roomId);
     getRoomExchange(roomId);
     getRoomQueue(roomId);
-    getRoomViewer(roomId);
+    getViewerCount(roomId);
   }
 
   /**
@@ -148,6 +153,12 @@ public class CacheManager {
         .map((id) -> String.format(RedisConfig.ROOM_VIEWER, id)).collect(Collectors.toSet());
   }
 
+  /**
+   * 获取房间最新事件时间
+   *
+   * @param roomId 房间ID
+   * @return 事件时间戳
+   */
   public long getLatestRoomEvent(Long roomId) {
     Object object = redisTemplate.opsForValue()
         .get(String.format(RedisConfig.ROOM_MQ_EVENT, roomId));
@@ -176,7 +187,7 @@ public class CacheManager {
    * 获取房间观众数量
    */
   public Integer getViewerCount(Long roomId) {
-    return CacheManager.ROOM_VIEWER_CACHE.get(roomId, k -> {
+    return ROOM_VIEWER_CACHE.get(roomId, k -> {
       Object object = redisTemplate.opsForValue()
           .get(String.format(RedisConfig.ROOM_VIEWER, roomId));
       if (Objects.isNull(object)) {
@@ -199,21 +210,5 @@ public class CacheManager {
   public Set<String> getRoomQueue(Long roomId) {
     return ROOM_QUEUE_CACHE.get(roomId,
         k -> redisTemplate.opsForSet().members(String.format(RedisConfig.ROOM_QUEUE, roomId)));
-  }
-
-  public Integer getRoomViewer(Long roomId) {
-    return ROOM_VIEWER_CACHE.get(roomId, k -> {
-      Object object = redisTemplate.opsForValue()
-          .get(String.format(RedisConfig.ROOM_VIEWER, roomId));
-      if (Objects.isNull(object)) {
-        return 0;
-      }
-      try {
-        return Integer.parseInt(object.toString());
-      } catch (NumberFormatException e) {
-        log.error("Invalid viewer count for room {}: {}", roomId, object);
-      }
-      return 0;
-    });
   }
 }
