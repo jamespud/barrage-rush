@@ -1,15 +1,16 @@
-package com.spud.barrage.auth.dto;
+package com.spud.barrage.common.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 登录请求DTO
- * 
+ *
  * @author Spud
  * @date 2025/3/27
  */

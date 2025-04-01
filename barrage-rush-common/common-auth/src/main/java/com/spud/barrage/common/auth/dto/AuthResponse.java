@@ -1,4 +1,4 @@
-package com.spud.barrage.auth.dto;
+package com.spud.barrage.common.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import java.util.List;
  * 认证响应DTO
  * 
  * @author Spud
- * @date 2025/3/27
+ * @date 2023/3/27
  */
 @Data
 @Builder

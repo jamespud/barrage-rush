@@ -33,19 +33,20 @@ spring:
         use_sql_comments: true
 
   # Redis配置
-  redis:
-    host: localhost
-    port: 6379
-    database: 0
-    password:
-    timeout: 5000
-    lettuce:
-      pool:
-        max-active: 8
-        max-wait: -1
-        max-idle: 8
-        min-idle: 0
-
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      password:
+      timeout: 5000
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1
+          max-idle: 8
+          min-idle: 0
+          
 # JWT配置
 jwt:
   secret: spudbQkAQtLvZs76k2JnQQ1LJJX1JeO9jC8xJ3h7KhcZCYG7s7s3YsPUhV3qfLzt

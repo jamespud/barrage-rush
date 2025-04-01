@@ -1,10 +1,9 @@
 package com.spud.barrage.auth.filter;
 
-
 import com.spud.barrage.auth.repository.UserRepository;
 import com.spud.barrage.auth.service.UserDetailsServiceImpl;
 import com.spud.barrage.auth.util.JwtUtil;
-import com.spud.barrage.common.core.io.Constants;
+import com.spud.barrage.common.auth.constant.AuthConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,9 +52,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       }
 
       // 从请求头中获取Authorization
-      String authorizationHeader = request.getHeader(Constants.Security.AUTHORIZATION_HEADER);
+      String authorizationHeader = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
       if (!StringUtils.hasText(authorizationHeader)
-          || !authorizationHeader.startsWith(Constants.Security.TOKEN_PREFIX)) {
+          || !authorizationHeader.startsWith(AuthConstants.TOKEN_PREFIX)) {
         filterChain.doFilter(request, response);
         return;
       }
@@ -68,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       }
 
       // 检查令牌是否在黑名单中（已登出）
-      String blacklistKey = Constants.Security.BLACKLIST_TOKEN_PREFIX + token;
+      String blacklistKey = AuthConstants.BLACKLIST_TOKEN_PREFIX + token;
       if (Boolean.TRUE.equals(redisTemplate.hasKey(blacklistKey))) {
         log.warn("Token is in blacklist: {}", token);
         filterChain.doFilter(request, response);
@@ -108,7 +107,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * 检查请求路径是否在白名单中
    */
   private boolean isWhiteListPath(String requestURI) {
-    return Arrays.stream(Constants.Security.WHITE_LIST)
+    return Arrays.stream(AuthConstants.WHITE_LIST)
         .anyMatch(pattern -> {
           if (pattern.endsWith("/**")) {
             String prefix = pattern.substring(0, pattern.length() - 3);

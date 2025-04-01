@@ -134,7 +134,7 @@ public class CaptchaUtil {
 
             // 随机旋转
             AffineTransform transform = new AffineTransform();
-            transform.translate((i + 1) * charWidth, HEIGHT / 2 + random.nextInt(charHeight / 2) - charHeight / 4);
+            transform.translate((i + 1) * charWidth, HEIGHT / 2.0 + random.nextInt(charHeight / 2) - charHeight / 4);
             transform.rotate(Math.toRadians(random.nextInt(30) - 15));
             g2d.setTransform(transform);
 

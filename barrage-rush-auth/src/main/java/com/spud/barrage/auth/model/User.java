@@ -122,6 +122,13 @@ public class User implements UserDetails {
     private LocalDateTime lastActiveTime;
 
     /**
+     * Token版本号，用于使旧的refresh token失效
+     * 当用户修改密码时，此版本号会递增
+     */
+    @Column(nullable = false)
+    private Long tokenVersion = 0L;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

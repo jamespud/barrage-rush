@@ -8,11 +8,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "barrage.auth")
 public class AuthProperties {
-  
-  private String secret;
-  
-  private long accessTokenExpiration;
-
-  private long refreshTokenExpiration;
 
 }

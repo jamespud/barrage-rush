@@ -1,10 +1,10 @@
 package com.spud.barrage.auth.config;
 
+import com.spud.barrage.auth.filter.JwtAuthenticationFilter;
 import com.spud.barrage.auth.security.JwtAccessDeniedHandler;
 import com.spud.barrage.auth.security.JwtAuthenticationEntryPoint;
-import com.spud.barrage.auth.filter.JwtAuthenticationFilter;
 import com.spud.barrage.auth.service.UserDetailsServiceImpl;
-import com.spud.barrage.common.core.io.Constants;
+import com.spud.barrage.common.auth.constant.AuthConstants;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public class SecurityConfig {
                 // 请求权限配置
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         // 放行路径
-                        .requestMatchers(Constants.Security.WHITE_LIST).permitAll()
+                        .requestMatchers(AuthConstants.WHITE_LIST).permitAll()
                         // 其他请求需要认证
                         .anyRequest().authenticated());
 

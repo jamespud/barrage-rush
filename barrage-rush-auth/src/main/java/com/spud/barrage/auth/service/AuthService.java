@@ -1,9 +1,9 @@
 package com.spud.barrage.auth.service;
 
-import com.spud.barrage.auth.dto.AuthResponse;
-import com.spud.barrage.auth.dto.LoginRequest;
-import com.spud.barrage.auth.dto.RefreshTokenRequest;
-import com.spud.barrage.auth.dto.RegisterRequest;
+import com.spud.barrage.common.auth.dto.AuthResponse;
+import com.spud.barrage.common.auth.dto.LoginRequest;
+import com.spud.barrage.common.auth.dto.RefreshTokenRequest;
+import com.spud.barrage.common.auth.dto.RegisterRequest;
 
 /**
  * 认证服务接口
@@ -59,4 +59,14 @@ public interface AuthService {
      * @return 验证码信息，包含验证码ID和验证码图片Base64
      */
     Object generateCaptcha();
+
+    /**
+     * 修改密码
+     *
+     * @param username    用户名
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @return 是否修改成功
+     */
+    boolean changePassword(String username, String oldPassword, String newPassword);
 }
