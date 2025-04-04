@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import java.io.Serializable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,14 +23,15 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class DanmakuMessage extends BaseEntity {
+public class DanmakuMessage extends BaseEntity implements Serializable {
 
-  
+  private static final long serialVersionUID = 1L;
+
   /**
    * 消息ID
    */
   @Id
-  private Long messageId;
+  private Long id;
 
   /**
    * 房间ID
@@ -42,29 +44,17 @@ public class DanmakuMessage extends BaseEntity {
   private Long userId;
 
   /**
-   * 用户名称
-   */
-  private String username;
-
-  /**
-   * 用户头像
-   */
-  private String avatar;
-
-  /**
    * 弹幕内容
    */
   private String content;
 
   /**
-   * 弹幕类型
+   * 弹幕位置
+   * 0：滚动弹幕（默认）
+   * 1：顶部固定弹幕
+   * 2：底部固定弹幕
    */
-  private DanmakuType type;
-
-  /**
-   * 弹幕样式
-   */
-  private String style;
+  private Integer position = 0;
 
   /**
    * 弹幕颜色
@@ -74,36 +64,31 @@ public class DanmakuMessage extends BaseEntity {
   /**
    * 弹幕字体大小
    */
-  private Integer fontSize;
+  private Integer size;
 
   /**
    * 时间戳（毫秒）
    */
   private Long timestamp;
 
-  /**
-   * 额外数据
-   */
-  private Object extra;
-
   public DanmakuMessage() {
 
   }
 
-  public DanmakuMessage(Long id, Long roomId, Long userId, String content, DanmakuType type,
-      String style) {
-    // TODO: 唯一ID生成
-    this.messageId = System.currentTimeMillis();
+  public DanmakuMessage(Long id, Long roomId, Long userId, String content,
+      String color, Integer size, Integer position, Long timestamp) {
+    this.id = id;
     this.roomId = roomId;
     this.userId = userId;
     this.content = content;
-    this.type = type;
-    this.style = style;
-    this.timestamp = System.currentTimeMillis();
+    this.color = color;
+    this.size = size;
+    this.position = position;
+    this.timestamp = timestamp;
   }
 
   public DanmakuMessage(Long id, Long userId, DanmakuRequest request) {
-    this(id, request.getRoomId(), userId, request.getContent(), request.getType(),
-        request.getStyle());
+    this(id, request.getRoomId(), userId, request.getContent(), request.getColor(),
+        request.getSize(), request.getPosition(), request.getTimestamp());
   }
 }

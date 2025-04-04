@@ -1,6 +1,6 @@
 package com.spud.barrage.common.core.exception;
 
-import com.spud.barrage.common.data.dto.Result;
+import com.spud.barrage.common.core.io.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

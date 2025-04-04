@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 /**
  * 弹幕生产者
  * 负责将弹幕消息发送到消息队列
- * 
+ *
  * @author Spud
- * @date 2025/3/4
+ * @date 2025/4/10
  */
 @Slf4j
 @Component
@@ -23,21 +23,20 @@ public class DanmakuProducer extends AbstractRabbitProducer {
   // 重试间隔基数（毫秒）
   private static final long RETRY_INTERVAL_BASE = 50;
 
+  /**
+   * 发送弹幕消息到消息队列
+   *
+   * @param message 弹幕消息
+   * @return 是否发送成功
+   */
   @Override
   public boolean sendDanmaku(DanmakuMessage message) {
-    if (message == null || message.getRoomId() == null || message.getUserId() == null) {
-      log.error("Invalid danmaku message: {}", message);
-      return false;
-    }
-
-    Long roomId = message.getRoomId();
-    Long userId = message.getUserId();
-
     // 重试计数
     int retryCount = 0;
     boolean sent = false;
 
-    // 发送消息，失败后重试
+    Long roomId = message.getRoomId();
+    Long userId = message.getUserId();
     while (!sent && retryCount < MAX_RETRY) {
       try {
         sent = super.sendMessage(roomId, userId, message);
@@ -47,7 +46,8 @@ public class DanmakuProducer extends AbstractRabbitProducer {
           if (retryCount < MAX_RETRY) {
             // 指数退避策略
             long sleepTime = RETRY_INTERVAL_BASE * (1L << retryCount);
-            log.warn("Failed to send danmaku for room {}, retry {}/{} after {} ms",
+            log.warn(
+                "Failed to send danmaku for room {}, {}/{} retries, waiting {} ms before retry",
                 roomId, retryCount, MAX_RETRY, sleepTime);
             Thread.sleep(sleepTime);
           }
@@ -55,14 +55,14 @@ public class DanmakuProducer extends AbstractRabbitProducer {
       } catch (Exception e) {
         retryCount++;
         if (retryCount < MAX_RETRY) {
-          log.error("Error sending danmaku for room {}, retry {}/{}: {}",
+          log.error("Error sending danmaku for room {}, {}/{} retries: {}",
               roomId, retryCount, MAX_RETRY, e.getMessage());
           try {
             // 指数退避策略
             Thread.sleep(RETRY_INTERVAL_BASE * (1L << retryCount));
           } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            log.error("Interrupted during retry wait", ie);
+            log.error("Thread interrupted during retry wait", ie);
             break;
           }
         } else {
@@ -72,13 +72,12 @@ public class DanmakuProducer extends AbstractRabbitProducer {
     }
 
     if (sent) {
-      log.info("Successfully sent danmaku: roomId={}, userId={}, content='{}'",
+      log.info("Danmaku sent successfully: roomId={}, userId={}, content='{}'",
           roomId, userId, message.getContent());
     } else {
       log.error("Failed to send danmaku after {} attempts: roomId={}, userId={}",
           MAX_RETRY, roomId, userId);
     }
-
     return sent;
   }
 }

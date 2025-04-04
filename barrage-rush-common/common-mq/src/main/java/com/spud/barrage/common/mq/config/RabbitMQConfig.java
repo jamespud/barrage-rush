@@ -1,6 +1,6 @@
 package com.spud.barrage.common.mq.config;
 
-import com.spud.barrage.common.data.config.RedisConfig;
+import com.spud.barrage.common.mq.constant.MqConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RabbitMQConfig {
 
-  // 前缀定义
+  // 前缀定义 - 通过常量类引用
   public static final String DANMAKU_EXCHANGE_PREFIX = "danmaku:exchange";
   public static final String DANMAKU_QUEUE_PREFIX = "danmaku:queue";
   public static final String DANMAKU_ROUTING_KEY_PREFIX = "danmaku:routing";
@@ -56,8 +56,8 @@ public class RabbitMQConfig {
   // 弹幕路由键模式
   public static final String DANMAKU_ROUTING_KEY = "danmaku:routing:%s";
 
-  // Redis频道主题，用于监听房间MQ配置变化
-  public static final String ROOM_MQ_CHANGE_TOPIC = "room:mq:change";
+  // Redis频道主题，用于监听房间MQ配置变化 - 使用常量类
+  public static final String ROOM_MQ_CHANGE_TOPIC = MqConstants.RedisTopic.ROOM_MQ_CHANGE;
 
   // 房间类型阈值配置
   public static int superHotViewersThreshold; // 超热门阈值
@@ -68,7 +68,7 @@ public class RabbitMQConfig {
    * 初始化超热门阈值
    * 默认10000观众为超热门直播间
    */
-  @Value("${rabbitmq.room.super-hot-viewers-threshold:10000}")
+  @Value("${barrage.room.viewers.super-hot-threshold:10000}")
   public void setSuperHotViewersThreshold(int threshold) {
     RabbitMQConfig.superHotViewersThreshold = threshold;
   }
@@ -77,7 +77,7 @@ public class RabbitMQConfig {
    * 初始化热门阈值
    * 默认1000观众为热门直播间
    */
-  @Value("${rabbitmq.room.hot-viewers-threshold:1000}")
+  @Value("${barrage.room.viewers.hot-threshold:1000}")
   public void setHotViewersThreshold(int threshold) {
     RabbitMQConfig.hotViewersThreshold = threshold;
   }
@@ -86,7 +86,7 @@ public class RabbitMQConfig {
    * 初始化冷门阈值
    * 默认10观众以下为冷门直播间
    */
-  @Value("${rabbitmq.room.cold-viewers-threshold:10}")
+  @Value("${barrage.room.viewers.cold-threshold:10}")
   public void setColdViewersThreshold(int threshold) {
     RabbitMQConfig.coldViewersThreshold = threshold;
   }

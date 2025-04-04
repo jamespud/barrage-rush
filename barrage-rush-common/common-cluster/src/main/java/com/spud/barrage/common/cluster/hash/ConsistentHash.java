@@ -246,7 +246,9 @@ public class ConsistentHash<T> {
       }
 
       int oldWeight = nodeWeights.get(node);
-      if (oldWeight == newWeight) return;
+      if (oldWeight == newWeight) {
+        return;
+      }
 
       // 计算需要增减的虚拟节点数
       int delta = newWeight - oldWeight;
@@ -291,7 +293,9 @@ public class ConsistentHash<T> {
    */
   private void shrinkVirtualNodes(T node, int removeCount) {
     Set<Long> hashes = nodeToHashes.get(node);
-    if (hashes == null || hashes.isEmpty()) return;
+    if (hashes == null || hashes.isEmpty()) {
+      return;
+    }
 
     // 按哈希值排序后均匀移除（保持分布均衡）
     List<Long> sortedHashes = new ArrayList<>(hashes);
@@ -313,7 +317,6 @@ public class ConsistentHash<T> {
 
     log.debug("Shrink {} virtual nodes from {}", removed, node);
   }
-
 
 
   /**

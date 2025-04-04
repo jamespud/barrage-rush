@@ -1,147 +1,138 @@
 package com.spud.barrage.common.mq.config;
 
-import com.spud.barrage.common.core.constant.RoomType;
-import com.spud.barrage.common.data.config.RedisConfig;
-import com.spud.barrage.common.mq.config.properties.DynamicMQProperties;
-import com.spud.barrage.common.mq.config.properties.RoomTrafficProperties;
+import com.spud.barrage.common.data.config.RedisLockUtils;
+import com.spud.barrage.common.data.mq.enums.RoomType;
+import com.spud.barrage.common.mq.constant.MqConstants;
+import com.spud.barrage.common.mq.properties.RoomTrafficProperties;
 import com.spud.barrage.common.mq.util.MqUtils;
-import java.util.Objects;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
  * 房间管理器
- * 负责管理房间的MQ配置和状态
- * 定期检查房间热度并更新房间类型和MQ绑定
- * 
+ * <p>
+ * 负责管理房间MQ配置和状态，包括以下功能：
+ * 1. 周期性检查房间热度，更新房间类型
+ * 2. 根据房间类型分配相应的MQ资源（交换机和队列）
+ * 3. 管理房间资源绑定关系，包括交换机和队列的绑定
+ * 4. 处理房间MQ配置变更事件，确保消息正确路由
+ * </p>
+ *
  * @author Spud
- * @date 2025/3/22
+ * @date 2025/4/01
  */
 @Slf4j
 @Component
 public class RoomManager {
 
-  static final long LOCK_TIMEOUT = 10000; // 增加锁超时时间为10秒
+  @Resource
+  private RedisLockUtils redisLockUtils;
 
-  // 分布式锁脚本 - 获取锁
-  private static final DefaultRedisScript<Long> LOCK_SCRIPT = new DefaultRedisScript<>(
-      "if redis.call('setnx', KEYS[1], ARGV[1]) == 1 then " +
-          "  redis.call('pexpire', KEYS[1], ARGV[2]) " +
-          "  return 1 " +
-          "else " +
-          "  return 0 " +
-          "end",
-      Long.class);
-
-  // 分布式锁脚本 - 释放锁
-  private static final DefaultRedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>(
-      "if redis.call('get', KEYS[1]) == ARGV[1] then " +
-          "  redis.call('del', KEYS[1]) " +
-          "  return 1 " +
-          "else " +
-          "  return 0 " +
-          "end",
-      Long.class);
-
-  private final ThreadPoolExecutor pool;
-
-  @Autowired
-  private DynamicMQProperties dynamicMQProperties;
-
-  @Autowired
+  @Resource
   private RedisTemplate<String, Object> redisTemplate;
+
+  /**
+   * 用于异步处理房间状态更新的线程池
+   */
+  private ThreadPoolExecutor roomStatusExecutor;
+
+  /**
+   * 用于定时扫描房间状态的调度线程池
+   */
+  private ScheduledExecutorService scheduledExecutor;
 
   @Autowired
   private CacheManager cacheManager;
 
-  public RoomManager(RoomTrafficProperties properties) {
-    // 初始化处理线程池
-    pool = new ThreadPoolExecutor(
-        properties.getPool().getCoreSize(),
-        properties.getPool().getMaxSize(),
-        properties.getPool().getKeepAlive(),
-        TimeUnit.SECONDS,
-        new LinkedBlockingQueue<>(1000),
+  @Autowired
+  private RoomTrafficProperties trafficProperties;
+
+  /**
+   * 初始化房间管理器
+   */
+  @PostConstruct
+  public void init() {
+    // 创建房间状态处理线程池
+    roomStatusExecutor = new ThreadPoolExecutor(trafficProperties.getThreadPool().getCoreSize(),
+        trafficProperties.getThreadPool().getMaxSize(),
+        trafficProperties.getThreadPool().getKeepAliveSeconds(), TimeUnit.SECONDS,
+        new LinkedBlockingQueue<>(trafficProperties.getThreadPool().getQueueCapacity()),
+        r -> new Thread(r, "room-status-handler-" + r.hashCode()),
         new ThreadPoolExecutor.CallerRunsPolicy());
-    log.info("RoomManager initialized with thread pool: core={}, max={}, keepAlive={}s",
-        properties.getPool().getCoreSize(),
-        properties.getPool().getMaxSize(),
-        properties.getPool().getKeepAlive());
+
+    // 创建定时调度线程池
+    scheduledExecutor = Executors.newScheduledThreadPool(1);
+
+    // 启动定时扫描任务
+    scheduledExecutor.scheduleAtFixedRate(this::checkRoomStatuses,
+        trafficProperties.getSchedule().getInitialDelaySeconds(),
+        trafficProperties.getSchedule().getPeriodSeconds(), TimeUnit.SECONDS);
+
+    log.info("房间管理器初始化完成，定时检查间隔: {}秒",
+        trafficProperties.getSchedule().getPeriodSeconds());
   }
 
   /**
-   * 定时任务: 每60秒检查活跃房间状态
-   * 异步处理每个房间的状态更新
+   * 检查所有活跃房间状态
    */
-  @Scheduled(fixedRate = 60000)
-  public void schedule() {
+  private void checkRoomStatuses() {
     log.info("Starting room status refresh task");
-
     try {
-      // 获取所有活跃房间
-      Set<String> activeRooms = redisTemplate.keys(RedisConfig.ACTIVE_ROOM);
-      if (activeRooms == null || activeRooms.isEmpty()) {
-        log.info("No active rooms found");
+      // 获取所有活跃房间ID
+      Set<Object> roomIds = redisTemplate.opsForSet().members(MqConstants.RedisKey.ACTIVE_ROOMS);
+      if (roomIds == null || roomIds.isEmpty()) {
         return;
       }
+      log.info("Found {} active rooms to process", roomIds.size());
 
-      log.info("Found {} active rooms to process", activeRooms.size());
-
-      // 批量处理所有活跃房间
-      for (String roomKey : activeRooms) {
+      // 异步处理每个房间的状态
+      for (Object roomIdObj : roomIds) {
         try {
-          // 提取房间ID
-          Long roomId = extractRoomId(roomKey);
-          if (roomId == null) {
-            continue;
-          }
-
-          // 提交任务到线程池异步处理房间状态
-          CompletableFuture.runAsync(() -> processRoomStatus(roomId), pool)
-              .exceptionally(e -> {
-                log.error("Error processing room status for room {}: {}", roomId, e.getMessage(),
-                    e);
-                return null;
-              });
+          Long roomId = Long.valueOf(roomIdObj.toString());
+          roomStatusExecutor.execute(() -> processRoomStatus(roomId));
         } catch (Exception e) {
-          log.error("Failed to process room key {}: {}", roomKey, e.getMessage(), e);
+          log.error("处理房间ID异常: {}", roomIdObj, e);
         }
       }
     } catch (Exception e) {
-      log.error("Failed to execute room status refresh task: {}", e.getMessage(), e);
+      log.error("检查房间状态异常", e);
     }
   }
 
   /**
    * 处理房间状态
-   * 基于房间热度更新MQ资源分配
-   * 
+   *
    * @param roomId 房间ID
    */
   public void processRoomStatus(Long roomId) {
+    if (roomId == null) {
+      log.warn("无效的房间ID: null");
+      return;
+    }
+    // 验证是否可以更新房间状态
+    boolean canUpdateRoom = validateRoomEvent(roomId);
+    if (!canUpdateRoom) {
+      // 不能更改房间状态，只更新本地缓存
+      log.debug("Skipping room status update for roomId={}, updated too recently", roomId);
+      cacheManager.updateLocalCache(roomId);
+      return;
+    }
+    log.debug("start processing room status: roomId={}", roomId);
     try {
-      // 验证是否可以更新房间状态
-      boolean canUpdateRoom = validateRoomEvent(roomId);
-      if (!canUpdateRoom) {
-        // 不能更改房间状态，只更新本地缓存
-        log.debug("Skipping room status update for roomId={}, updated too recently", roomId);
-        cacheManager.updateLocalCache(roomId);
-        return;
-      }
-
       // 尝试获取分布式锁，防止多个节点同时更新
-      String lockKey = String.format(RedisConfig.PER_ROOM_STATE, roomId);
-      String lockValue = String.valueOf(Thread.currentThread().threadId());
-      boolean locked = acquireLock(lockKey, lockValue, LOCK_TIMEOUT);
+      String lockKey = String.format(MqConstants.RedisKey.ROOM_STATUS_LOCK, roomId);
+      boolean locked = redisLockUtils.tryLock(lockKey,
+          trafficProperties.getLockTimeoutMillis());
 
       if (!locked) {
         log.info("Failed to acquire lock for room {}, another process is updating it", roomId);
@@ -151,36 +142,29 @@ public class RoomManager {
       try {
         // 获取当前房间类型和观众数
         RoomType oldType = cacheManager.getRoomType(roomId);
-        Integer viewerCount = cacheManager.getViewerCount(roomId);
+        cacheManager.invalidRoomType(roomId);
+        RoomType newType = cacheManager.getRoomType(roomId);
 
-        // 根据观众数确定新的房间类型
-        RoomType newType = MqUtils.determineRoomType(viewerCount);
-
-        // 无论是否发生类型变化，都要进行房间状态更新
-        log.info("Room {} status: viewers={}, type changing from {} to {}",
-            roomId, viewerCount, oldType, newType);
-
-        // 更新本地缓存
-        CacheManager.ROOM_TYPE_CACHE.put(roomId, newType);
-
-        // 根据房间类型变化规则更新MQ资源
+        log.info("Room {} type changing from {} to {}", roomId, oldType, newType);
         boolean updated = handleRoomTypeChange(roomId, oldType, newType);
 
         if (updated) {
           // 更新状态变更时间
           redisTemplate.opsForValue()
-              .set(String.format(RedisConfig.ROOM_TYPE_CHANGE, roomId), System.currentTimeMillis());
+              .set(String.format(MqConstants.RedisKey.ROOM_TYPE_CHANGE, roomId),
+                  System.currentTimeMillis());
 
           // 发布房间状态变化事件，通知其他节点
           publishRoomStatusChangeEvent(roomId);
 
           log.info("Successfully updated room {} type from {} to {}", roomId, oldType, newType);
         } else {
-          log.warn("Failed to update MQ resources for room {}", roomId);
+          log.warn("Failed to update status for room {}", roomId);
         }
+
       } finally {
-        // 无论处理结果如何，都要释放锁
-        releaseLock(lockKey, lockValue);
+        // 释放锁
+        redisLockUtils.unlock(lockKey);
       }
     } catch (Exception e) {
       log.error("Error processing room status for room {}: {}", roomId, e.getMessage(), e);
@@ -189,7 +173,7 @@ public class RoomManager {
 
   /**
    * 发布房间状态变化事件，通知系统中其他组件
-   * 
+   *
    * @param roomId 房间ID
    */
   private void publishRoomStatusChangeEvent(Long roomId) {
@@ -204,11 +188,10 @@ public class RoomManager {
   /**
    * 处理房间类型变化
    * 根据新旧类型，更新交换机和队列的绑定关系
-   * 
+   *
    * @param roomId  房间ID
    * @param oldType 旧房间类型
    * @param newType 新房间类型
-   * @return 是否成功更新
    */
   private boolean handleRoomTypeChange(Long roomId, RoomType oldType, RoomType newType) {
     try {
@@ -248,7 +231,7 @@ public class RoomManager {
 
   /**
    * 为热门房间创建额外的分片队列
-   * 
+   *
    * @param roomId     房间ID
    * @param type       房间类型
    * @param shardCount 分片数量
@@ -258,7 +241,8 @@ public class RoomManager {
       // 从第1个分片开始创建（0号分片由createExchangeAndQueue创建）
       for (int i = 1; i < shardCount; i++) {
         String queueName = MqUtils.generateQueueName(roomId, type, i);
-        redisTemplate.opsForSet().add(String.format(RedisConfig.ROOM_QUEUE, roomId), queueName);
+        redisTemplate.opsForSet()
+            .add(String.format(MqConstants.RedisKey.ROOM_QUEUE, roomId), queueName);
         log.debug("Created additional shard queue {} for room {}", queueName, roomId);
       }
     } catch (Exception e) {
@@ -268,87 +252,36 @@ public class RoomManager {
 
   /**
    * 根据房间类型确定分片数量
-   * 
+   *
    * @param type 房间类型
    * @return 分片数量
    */
   private int getShardCountForType(RoomType type) {
     return switch (type) {
-      case SUPER_HOT -> 5; // 超热门房间使用5个分片
-      case HOT -> 3; // 热门房间使用3个分片
-      default -> 1; // 其他类型使用1个分片
+      case SUPER_HOT -> trafficProperties.getShard().getSuperHotShardCount();
+      case HOT -> trafficProperties.getShard().getHotShardCount();
+      case NORMAL -> trafficProperties.getShard().getNormalShardCount();
+      case COLD -> trafficProperties.getShard().getColdShardCount();
     };
-  }
-
-  /**
-   * 从房间键中提取房间ID
-   * 
-   * @param roomKey 房间键
-   * @return 房间ID
-   */
-  private Long extractRoomId(String roomKey) {
-    return MqUtils.extractRoomId(roomKey);
-  }
-
-  /**
-   * 获取分布式锁
-   * 
-   * @param lockKey   锁的键
-   * @param lockValue 锁的值（用于标识锁的持有者）
-   * @param timeout   锁的超时时间（毫秒）
-   * @return 是否成功获取锁
-   */
-  private boolean acquireLock(String lockKey, String lockValue, long timeout) {
-    try {
-      Long result = redisTemplate.execute(
-          LOCK_SCRIPT,
-          java.util.Collections.singletonList(lockKey),
-          lockValue,
-          String.valueOf(timeout));
-      return Objects.equals(result, 1L);
-    } catch (Exception e) {
-      log.error("Failed to acquire lock {}: {}", lockKey, e.getMessage(), e);
-      return false;
-    }
-  }
-
-  /**
-   * 释放分布式锁
-   * 
-   * @param lockKey   锁的键
-   * @param lockValue 锁的值（用于验证锁的持有者）
-   * @return 是否成功释放锁
-   */
-  private boolean releaseLock(String lockKey, String lockValue) {
-    try {
-      Long result = redisTemplate.execute(
-          UNLOCK_SCRIPT,
-          java.util.Collections.singletonList(lockKey),
-          lockValue);
-      return Objects.equals(result, 1L);
-    } catch (Exception e) {
-      log.error("Failed to release lock {}: {}", lockKey, e.getMessage(), e);
-      return false;
-    }
   }
 
   /**
    * 验证房间事件更新间隔
    * 防止频繁更新同一房间的状态
-   * 
+   *
    * @param roomId 房间ID
    * @return 是否可以更新
    */
   public boolean validateRoomEvent(Long roomId) {
     long lastEventTimestamp = cacheManager.getLatestRoomEvent(roomId);
     long currentTime = System.currentTimeMillis();
-    long interval = dynamicMQProperties.getRoomEventChangeInterval();
+    long interval = trafficProperties.getShard().getTypeChangeInterval();
 
     boolean canUpdate = (currentTime - lastEventTimestamp) >= interval;
 
     if (!canUpdate) {
-      log.debug("Room {} event interval check failed: last={}, current={}, required={}ms",
-          roomId, lastEventTimestamp, currentTime, interval);
+      log.debug("Room {} event interval check failed: last={}, current={}, required={}ms", roomId,
+          lastEventTimestamp, currentTime, interval);
     }
 
     return canUpdate;

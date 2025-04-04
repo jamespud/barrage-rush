@@ -1,10 +1,8 @@
+# application.yml
 server:
   port: ${SERVER_PORT:8083}
   servlet:
     context-path: /
-  tomcat:
-    max-threads: 200
-    max-connections: 10000
 
 spring:
   application:
@@ -14,87 +12,73 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       database: ${REDIS_DATABASE:0}
-      timeout: 10000
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          max-wait: -1
+      password: ${REDIS_PASSWORD:}
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
-# 连接服务配置
-connection:
-  serverId: 1
-  serverAddress: localhost
-  serverPort: 8082
-  region: CENTRAL
-  maxConnections: 10000
-  heartbeatTimeout: 30000
-  heartbeatInterval: 15000
-  connectionTimeout: 5000
-  messageBufferSize: 100
-  messageSendInterval: 50
-  redis:
-    danmakuKeyPrefix:
-      danmaku:room:
-    danmakuExpire: 3600
-    roomOnlineKeyPrefix:
-      room:online:
-    userSessionKeyPrefix:
-      user:session:
-    userSessionExpire: 3600
-    heartbeatKeyPrefix:
-      heartbeat:
-    heartbeatExpire: 60
-
-# 弹幕系统配置
-barrage:
-  # 集群配置
-  cluster:
-    # 实例类型
-    instance-type: push-server
-    # 资源类型
-    resource-type: room
-    # 实例ID（默认自动生成）
-    instance-id: ${INSTANCE_ID:}
-    # 心跳TTL（秒）
-    heartbeat-ttl: 30
-    # 虚拟节点数
-    virtual-nodes: 128
-
-# 推送服务器配置
+# 推送服务配置
 push:
   # 服务器元数据
   server:
-    # 服务器主机名（外部可访问）
     host: ${SERVER_HOST:localhost}
-    # 服务器端口（外部可访问）
     port: ${SERVER_PORT:8083}
-    # 服务器地区
-    region: ${SERVER_REGION:default}
-    # 服务器URL模式
+    region: ${SERVER_REGION:CN}
     url-pattern: http://{host}:{port}/ws/room/{roomId}
+  
   # WebSocket配置
   websocket:
-    # 允许的源
     allowed-origins: ${WS_ALLOWED_ORIGINS:*}
-    # WebSocket路径
-    path: /ws/room/{roomId}
-    # 启用集群检查
+    room-path: /ws/room/{roomId}
+    danmaku-path: /ws/danmaku/{roomId}
+    heartbeat-path: /ws/heartbeat/{roomId}
+    proxy-path: /ws/proxy/{roomId}
     cluster-check-enabled: true
+  
   # 弹幕处理配置
   danmaku:
-    # 弹幕队列TTL（秒）
     queue-ttl: 3600
-    # 最大队列大小
     max-queue-size: 200
-    # 是否向MQ广播弹幕
     broadcast-to-mq: true
+    redis-key-prefix:
+      danmaku:room:
+    redis-ttl: 3600
+    max-message-count: 200
+  
+  # 心跳配置
+  heartbeat:
+    timeout: 30000
+    redis-key-prefix: "heartbeat:"
+    redis-ttl: 60
+  
+  # CDN配置
+  cdn:
+    redis-key-prefix: "cdn:room:"
+    redis-ttl: 3600
+
+# 令牌配置
+barrage:
+  token:
+    prefix: "ws:token:"
+  
+  # 消息队列配置
+  mq:
+    danmaku-exchange: danmaku.exchange
+    danmaku-queue: danmaku.queue
+    danmaku-routing-key: danmaku.routing
+    notification-exchange: notification.exchange
+    notification-queue: notification.queue
+    notification-routing-key: notification.routing
+  
+  # 集群配置
+  cluster:
+    instance-type: push-server
+    resource-type: room
+    heartbeat-ttl: 30
+    virtual-nodes: 128
+    region: ${SERVER_REGION:CN}
 
 # 日志配置
 logging:
@@ -102,13 +86,3 @@ logging:
     root: INFO
     com.spud.barrage: DEBUG
     org.springframework.web.socket: INFO
-
-# Actuator配置
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      show-details: always

@@ -72,7 +72,7 @@
     <module>barrage-rush-consumer</module>
     <module>barrage-rush-push-server</module>
     <module>barrage-rush-common</module>
-    <module>barrage-rush-connection-proxy</module>
+    <module>barrage-rush-proxy</module>
   </modules>
   <packaging>pom</packaging>
 

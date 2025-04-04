@@ -19,13 +19,4 @@ public class ApiConstants {
   public static final String ROOM_PREFIX = "/api/v1/rooms";
   public static final String ROOM_CONFIG = "/{roomId}/config";
   public static final String ROOM_ACTION = "/{roomId}/action";
-
-  // TODO: move to redis config
-  // Redis Key前缀
-  public static final String REDIS_ROOM_USERS = "room:%s:users";
-  public static final String REDIS_USER_CONNECTION = "user:%s:connection";
-  public static final String REDIS_ROOM_MESSAGES = "room:%s:messages";
-  public static final String REDIS_USER_LIMIT = "limit:user:%s:count";
-  public static final String REDIS_ROOM_CONFIG = "room:%s:config";
-  public static final String REDIS_USER_BAN = "room:%s:config";
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @date 2025/3/6
  *
  * @desc 64位ID结构（从高位到低位）：
- * 
+ *
  *       <pre>
  * 1位  - 保留位（未使用，始终为0）
  * 41位 - 时间戳差值（当前时间 - 纪元开始时间），约可使用69年
@@ -33,7 +33,8 @@ public class SnowflakeIdWorker {
   private static final long SEQUENCE_BITS = 12L; // 序列号位数
   private static final long WORKER_ID_SHIFT = SEQUENCE_BITS; // 工作节点ID左移位数（12）
   private static final long DATACENTER_ID_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS; // 数据中心ID左移位数（17）
-  private static final long TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS; // 时间戳左移位数（22）
+  private static final long TIMESTAMP_LEFT_SHIFT =
+      SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS; // 时间戳左移位数（22）
   private static final long SEQUENCE_MASK = -1L ^ (-1L << SEQUENCE_BITS); // 序列号掩码（4095）
 
   // 实例变量

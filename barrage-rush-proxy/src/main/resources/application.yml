@@ -1,75 +1,63 @@
+# application.yml
 server:
-  port: 8090
+  port: 8080
+  servlet:
+    context-path: /
 
 spring:
   application:
-    name: barrage-rush-connection-proxy
+    name: barrage-rush-proxy
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
-      database: ${REDIS_DATABASE:0}
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
-  config:
-    import:
-      - classpath:application-regions.yml
+      database: 0
+      timeout: 3000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics
+    endpoint:
+      health:
+        show-details: always
 
-# 弹幕系统集群配置
-barrage:
-  cluster:
-    enabled: true
-    instance-type: proxy
-    heartbeat-interval: 30
-    resource-type: room
-
-# GeoIP2数据库配置
-geoip:
-  database:
-    path: ${GEOIP_DB_PATH:${user.home}/geoip/GeoLite2-City.mmdb}
-  cache:
-    size: 10000
-    expiration: 12
-  default-region: CN
+# WebSocket服务配置
+push-server:
+  heartbeat-url-pattern: ws://{host}:{port}/ws/heartbeat/{roomId}?token={token}
+  danmaku-url-pattern: ws://{host}:{port}/ws/danmaku/{roomId}?token={token}
+  cdn-url-pattern: ws://{host}:{port}/ws/cdn/{roomId}?token={token}
 
 # 令牌配置
-token:
-  secret: ${TOKEN_SECRET:barrage-rush-secret-key}
-  expiration: 300 # 5分钟
+barrage:
+  token:
+    secret: ${TOKEN_SECRET:myBarrageRushSecretKey}
+    ttl: ${TOKEN_TTL:3600}
+  region:
+    default: ${DEFAULT_REGION:cn-east-1}
+    available: ${AVAILABLE_REGIONS:cn-east-1,cn-north-1,cn-south-1}
+  discovery:
+    active-servers-key: ws:active-servers
+    server-prefix:
+      ws:server:
+    refresh-interval: 10000
 
-# 推送服务器配置
-push-server:
-  url-pattern: ws://%s/ws/room/%d
-  danmaku-url-pattern: ws://%s/ws/danmaku/%d
-  heartbeat-url-pattern: ws://%s/ws/heartbeat/%d
-  proxy-url-pattern: ws://%s/ws/proxy/%d
-  route-by-region: true
-  instance-prefix: push-
-  use-consistent-hash: true
-  proxy-ttl: 3600
-
-# 健康检查配置
-health-check:
-  enabled: true
-  interval: 60000 # 60秒
-  timeout: 5000 # 5秒
-  url-pattern: http://%s/actuator/health
-
+# 区域配置
+geo:
+  database:
+    path: classpath:GeoLite2-Country.mmdb
 # 日志配置
 logging:
   level:
     root: INFO
-    com.spud.barrage: DEBUG
-    org.springframework.web: INFO
-
-# Actuator配置
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
+    com.spud.barrage: INFO
+    org.springframework.data.redis: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -2,8 +2,8 @@ package com.spud.barrage.common.mq.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.spud.barrage.common.core.constant.RoomType;
-import com.spud.barrage.common.data.config.RedisConfig;
+import com.spud.barrage.common.data.mq.enums.RoomType;
+import com.spud.barrage.common.mq.constant.MqConstants;
 import com.spud.barrage.common.mq.util.MqUtils;
 import java.util.Collections;
 import java.util.Objects;
@@ -26,24 +26,24 @@ public class CacheManager {
   // 房间分类Map缓存，避免频繁查询Redis
   static final Cache<Long, RoomType> ROOM_TYPE_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
-  
+
   // 房间ex Map，记录当前房间的ex
   static final Cache<Long, Set<String>> ROOM_EXCHANGE_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
-  
+
   // 房间队列Map，记录当前房间的队列
   static final Cache<Long, Set<String>> ROOM_QUEUE_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
-  
+
   // 房间流量计数器
   static final Cache<Long, Integer> ROOM_VIEWER_CACHE = Caffeine.newBuilder()
       .expireAfterAccess(3, TimeUnit.MINUTES).build();
-  
+
   @Autowired
   protected RedisTemplate<String, String> redisTemplate;
-  
+
   @Autowired
-  private ResourceManager resourceManager;
+  private RoomResourceManager roomResourceManager;
 
   private void clearLocalRoomCache(Long roomId) {
     ROOM_TYPE_CACHE.invalidate(roomId);
@@ -88,7 +88,7 @@ public class CacheManager {
       ROOM_QUEUE_CACHE.invalidate(roomId);
       // 清除Redis中的绑定
       for (String queue : roomQueue) {
-        success &= resourceManager.releaseQueueId(oldType, queue);
+        success &= roomResourceManager.releaseQueueId(oldType, queue);
       }
       log.info("Cleared queue bindings for room {}", roomId);
     } catch (Exception e) {
@@ -109,7 +109,7 @@ public class CacheManager {
       ROOM_EXCHANGE_CACHE.invalidate(roomId);
       // 清除Redis中的绑定
       for (String exchange : roomExchange) {
-        success &= resourceManager.releaseExchangeId(oldType, exchange);
+        success &= roomResourceManager.releaseExchangeId(oldType, exchange);
       }
       log.info("Cleared exchange bindings for room {}", roomId);
     } catch (Exception e) {
@@ -128,15 +128,18 @@ public class CacheManager {
       long changeTime = System.currentTimeMillis();
 
       // 根据房间类型创建不同的交换机和队列
-      String exchangeName = resourceManager.getExchangeId(type);
-      String queueName = resourceManager.getQueueId(exchangeName, type);
+      String exchangeName = roomResourceManager.getExchangeId(type);
+      String queueName = roomResourceManager.getQueueId(exchangeName, type);
 
       // 将交换机和队列绑定保存到Redis
-      redisTemplate.opsForSet().add(String.format(RedisConfig.ROOM_EXCHANGE, roomId), exchangeName);
-      redisTemplate.opsForSet().add(String.format(RedisConfig.ROOM_QUEUE, roomId), queueName);
+      redisTemplate.opsForSet()
+          .add(String.format(MqConstants.RedisKey.ROOM_EXCHANGE, roomId), exchangeName);
+      redisTemplate.opsForSet()
+          .add(String.format(MqConstants.RedisKey.ROOM_QUEUE, roomId), queueName);
 
       redisTemplate.opsForValue()
-          .set(String.format(RedisConfig.ROOM_MQ_EVENT, roomId), String.valueOf(changeTime));
+          .set(String.format(MqConstants.RedisKey.ROOM_MQ_EVENT, roomId),
+              String.valueOf(changeTime));
 
       // 更新本地缓存
       ROOM_EXCHANGE_CACHE.put(roomId, Collections.singleton(exchangeName));
@@ -150,7 +153,8 @@ public class CacheManager {
 
   public Set<String> getActiveRooms() {
     return ROOM_VIEWER_CACHE.asMap().keySet().stream()
-        .map((id) -> String.format(RedisConfig.ROOM_VIEWER, id)).collect(Collectors.toSet());
+        .map((id) -> String.format(MqConstants.RedisKey.ROOM_VIEWERS, id))
+        .collect(Collectors.toSet());
   }
 
   /**
@@ -161,7 +165,7 @@ public class CacheManager {
    */
   public long getLatestRoomEvent(Long roomId) {
     Object object = redisTemplate.opsForValue()
-        .get(String.format(RedisConfig.ROOM_MQ_EVENT, roomId));
+        .get(String.format(MqConstants.RedisKey.ROOM_MQ_EVENT, roomId));
     if (Objects.isNull(object)) {
       return -1L;
     }
@@ -173,13 +177,21 @@ public class CacheManager {
     }
   }
 
+  public void invalidRoomType(Long roomId) {
+    try {
+      ROOM_TYPE_CACHE.invalidate(roomId);
+    } catch (Exception e) {
+      log.error("Failed to invalid room type for room {}: {}", roomId, e.getMessage(), e);
+    }
+  }
+
   /**
    * 获取房间类型，优先从本地缓存获取，没有则查询Redis
    */
   public RoomType getRoomType(Long roomId) {
     return CacheManager.ROOM_TYPE_CACHE.get(roomId, k -> {
       Integer viewers = getViewerCount(roomId);
-      return MqUtils.determineRoomType(viewers);
+      return viewers == -1 ? RoomType.NORMAL : MqUtils.determineRoomType(viewers);
     });
   }
 
@@ -189,26 +201,28 @@ public class CacheManager {
   public Integer getViewerCount(Long roomId) {
     return ROOM_VIEWER_CACHE.get(roomId, k -> {
       Object object = redisTemplate.opsForValue()
-          .get(String.format(RedisConfig.ROOM_VIEWER, roomId));
+          .get(String.format(MqConstants.RedisKey.ROOM_VIEWERS, roomId));
       if (Objects.isNull(object)) {
-        return 0;
+        return -1;
       }
       try {
         return Integer.parseInt(object.toString());
       } catch (NumberFormatException e) {
         log.error("Invalid viewer count for room {}: {}", roomId, object);
-        return 0;
+        return -1;
       }
     });
   }
 
   public Set<String> getRoomExchange(Long roomId) {
     return ROOM_EXCHANGE_CACHE.get(roomId,
-        k -> redisTemplate.opsForSet().members(String.format(RedisConfig.ROOM_EXCHANGE, roomId)));
+        k -> redisTemplate.opsForSet()
+            .members(String.format(MqConstants.RedisKey.ROOM_EXCHANGE, roomId)));
   }
 
   public Set<String> getRoomQueue(Long roomId) {
     return ROOM_QUEUE_CACHE.get(roomId,
-        k -> redisTemplate.opsForSet().members(String.format(RedisConfig.ROOM_QUEUE, roomId)));
+        k -> redisTemplate.opsForSet()
+            .members(String.format(MqConstants.RedisKey.ROOM_QUEUE, roomId)));
   }
 }

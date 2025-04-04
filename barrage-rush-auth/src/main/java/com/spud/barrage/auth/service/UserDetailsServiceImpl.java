@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 /**
  * UserDetailsService实现类
  * 用于Spring Security从数据库加载用户信息
- * 
+ *
  * @author Spud
  * @date 2025/3/27
  */
@@ -21,17 +21,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 从数据库加载用户信息
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("未找到用户: " + username));
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    // 从数据库加载用户信息
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("未找到用户: " + username));
 
-        log.debug("用户 [{}] 信息加载成功", username);
+    log.debug("用户 [{}] 信息加载成功", username);
 
-        // User实体类已实现UserDetails接口，直接返回
-        return user;
-    }
+    // User实体类已实现UserDetails接口，直接返回
+    return user;
+  }
 }

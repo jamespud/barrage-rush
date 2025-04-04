@@ -9,8 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication(scanBasePackages = "com.spud.barrage")
 public class DanmakuApplication {
+
   public static void main(String[] args) {
-        SpringApplication.run(DanmakuApplication.class, args);
+    SpringApplication.run(DanmakuApplication.class, args);
   }
 
 }

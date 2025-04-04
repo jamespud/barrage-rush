@@ -1,4 +1,4 @@
-package com.spud.barrage.common.data.dto;
+package com.spud.barrage.common.core.io;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

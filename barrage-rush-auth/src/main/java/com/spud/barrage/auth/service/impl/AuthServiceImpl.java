@@ -11,7 +11,7 @@ import com.spud.barrage.common.auth.dto.LoginRequest;
 import com.spud.barrage.common.auth.dto.RefreshTokenRequest;
 import com.spud.barrage.common.auth.dto.RegisterRequest;
 import com.spud.barrage.common.core.exception.BarrageException;
-import com.spud.barrage.common.core.io.Constants;
+import com.spud.barrage.common.core.io.AuthConstants;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
       userRepository.save(userDetails);
 
       // 记录在线用户
-      String onlineUserKey = Constants.Redis.ONLINE_USER_PREFIX + userDetails.getId();
+      String onlineUserKey = AuthConstants.Redis.ONLINE_USER_PREFIX + userDetails.getId();
       redisTemplate.opsForValue().set(onlineUserKey, "1", 30, TimeUnit.MINUTES);
 
       // 返回认证响应
@@ -130,7 +130,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // 获取用户角色
-    Role userRole = roleRepository.findByName(Constants.Security.ROLE_USER)
+    Role userRole = roleRepository.findByName(AuthConstants.Security.ROLE_USER)
         .orElseThrow(() -> new BarrageException("用户角色不存在"));
 
     // 创建用户实体
@@ -213,8 +213,8 @@ public class AuthServiceImpl implements AuthService {
     // 将令牌加入黑名单
     if (token != null && !token.isEmpty()) {
       String jwtToken = token;
-      if (token.startsWith(Constants.Security.TOKEN_PREFIX)) {
-        jwtToken = token.substring(Constants.Security.TOKEN_PREFIX.length());
+      if (token.startsWith(AuthConstants.Security.TOKEN_PREFIX)) {
+        jwtToken = token.substring(AuthConstants.Security.TOKEN_PREFIX.length());
       }
 
       try {
@@ -222,12 +222,12 @@ public class AuthServiceImpl implements AuthService {
         String username = jwtUtil.getUsernameFromToken(jwtToken);
 
         // 将令牌加入黑名单
-        String blacklistKey = Constants.Security.BLACKLIST_TOKEN_PREFIX + jwtToken;
+        String blacklistKey = AuthConstants.Security.BLACKLIST_TOKEN_PREFIX + jwtToken;
         redisTemplate.opsForValue().set(blacklistKey, "1", 24, TimeUnit.HOURS);
 
         // 移除在线用户记录
         userRepository.findByUsername(username).ifPresent(user -> {
-          String onlineUserKey = Constants.Redis.ONLINE_USER_PREFIX + user.getId();
+          String onlineUserKey = AuthConstants.Redis.ONLINE_USER_PREFIX + user.getId();
           redisTemplate.delete(onlineUserKey);
         });
 
@@ -244,7 +244,7 @@ public class AuthServiceImpl implements AuthService {
       return false;
     }
 
-    String captchaKey = Constants.Security.CAPTCHA_PREFIX + captchaId;
+    String captchaKey = AuthConstants.Security.CAPTCHA_PREFIX + captchaId;
     String storedCaptcha = (String) redisTemplate.opsForValue().get(captchaKey);
 
     if (storedCaptcha != null && storedCaptcha.equalsIgnoreCase(captcha)) {
@@ -262,7 +262,7 @@ public class AuthServiceImpl implements AuthService {
     String captchaCode = generateRandomCode(6);
 
     // 存储验证码到Redis，5分钟过期
-    String captchaKey = Constants.Security.CAPTCHA_PREFIX + captchaId;
+    String captchaKey = AuthConstants.Security.CAPTCHA_PREFIX + captchaId;
     redisTemplate.opsForValue().set(captchaKey, captchaCode, 5, TimeUnit.MINUTES);
 
     Map<String, String> captchaMap = new HashMap<>();
@@ -293,7 +293,7 @@ public class AuthServiceImpl implements AuthService {
     userRepository.save(user);
 
     // 清除可能存在的登录失败记录
-    String loginErrorKey = Constants.Redis.USER_INFO_PREFIX + "login:error:" + username;
+    String loginErrorKey = AuthConstants.Redis.USER_INFO_PREFIX + "login:error:" + username;
     redisTemplate.delete(loginErrorKey);
 
     log.info("用户 [{}] 成功修改密码，token版本已更新为 {}", username, user.getTokenVersion());
@@ -324,7 +324,7 @@ public class AuthServiceImpl implements AuthService {
         .avatarUrl(user.getAvatarUrl())
         .accessToken(accessToken)
         .refreshToken(refreshToken)
-        .tokenType(Constants.Security.TOKEN_PREFIX.trim())
+        .tokenType(AuthConstants.Security.TOKEN_PREFIX.trim())
         .expiresIn(
             jwtUtil.getExpirationDateFromToken(accessToken).getTime() - System.currentTimeMillis())
         .roles(roles)
@@ -337,7 +337,7 @@ public class AuthServiceImpl implements AuthService {
    * 增加登录失败次数
    */
   private void incrementLoginFailCount(String username) {
-    String loginErrorKey = Constants.Redis.USER_INFO_PREFIX + "login:error:" + username;
+    String loginErrorKey = AuthConstants.Redis.USER_INFO_PREFIX + "login:error:" + username;
     Long count = redisTemplate.opsForValue().increment(loginErrorKey);
     if (count != null && count == 1) {
       redisTemplate.expire(loginErrorKey, 1, TimeUnit.HOURS);
@@ -350,7 +350,7 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         // 记录锁定时间，15分钟后自动解锁
-        String lockKey = Constants.Redis.USER_INFO_PREFIX + "lock:" + username;
+        String lockKey = AuthConstants.Redis.USER_INFO_PREFIX + "lock:" + username;
         redisTemplate.opsForValue().set(lockKey, "1", 15, TimeUnit.MINUTES);
 
         log.warn("用户 [{}] 登录失败次数过多，账户已锁定15分钟", username);

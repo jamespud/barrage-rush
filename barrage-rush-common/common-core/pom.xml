@@ -9,6 +9,10 @@
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
       <artifactId>common-data</artifactId>
       <groupId>com.spud.barrage</groupId>
       <scope>provided</scope>

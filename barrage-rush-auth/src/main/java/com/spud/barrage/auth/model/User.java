@@ -40,147 +40,147 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    /**
-     * 用户名
-     */
-    @Column(unique = true, nullable = false, length = 50)
-    private String username;
+  /**
+   * 用户名
+   */
+  @Column(unique = true, nullable = false, length = 50)
+  private String username;
 
-    /**
-     * 密码（加密存储）
-     */
-    @JsonIgnore
-    @Column(nullable = false)
-    private String password;
+  /**
+   * 密码（加密存储）
+   */
+  @JsonIgnore
+  @Column(nullable = false)
+  private String password;
 
-    /**
-     * 邮箱
-     */
-    @Column(unique = true, length = 100)
-    private String email;
+  /**
+   * 邮箱
+   */
+  @Column(unique = true, length = 100)
+  private String email;
 
-    /**
-     * 手机号
-     */
-    @Column(length = 20)
-    private String phoneNumber;
+  /**
+   * 手机号
+   */
+  @Column(length = 20)
+  private String phoneNumber;
 
-    /**
-     * 昵称
-     */
-    @Column(length = 50)
-    private String nickname;
+  /**
+   * 昵称
+   */
+  @Column(length = 50)
+  private String nickname;
 
-    /**
-     * 头像URL
-     */
-    @Column(length = 255)
-    private String avatarUrl;
+  /**
+   * 头像URL
+   */
+  @Column(length = 255)
+  private String avatarUrl;
 
-    /**
-     * 账号是否未过期
-     */
-    @Column(nullable = false)
-    private boolean accountNonExpired = true;
+  /**
+   * 账号是否未过期
+   */
+  @Column(nullable = false)
+  private boolean accountNonExpired = true;
 
-    /**
-     * 账号是否未锁定
-     */
-    @Column(nullable = false)
-    private boolean accountNonLocked = true;
+  /**
+   * 账号是否未锁定
+   */
+  @Column(nullable = false)
+  private boolean accountNonLocked = true;
 
-    /**
-     * 凭证是否未过期
-     */
-    @Column(nullable = false)
-    private boolean credentialsNonExpired = true;
+  /**
+   * 凭证是否未过期
+   */
+  @Column(nullable = false)
+  private boolean credentialsNonExpired = true;
 
-    /**
-     * 账号是否启用
-     */
-    @Column(nullable = false)
-    private boolean enabled = true;
+  /**
+   * 账号是否启用
+   */
+  @Column(nullable = false)
+  private boolean enabled = true;
 
-    /**
-     * 最后登录时间
-     */
-    private LocalDateTime lastLoginTime;
+  /**
+   * 最后登录时间
+   */
+  private LocalDateTime lastLoginTime;
 
-    /**
-     * 最后登录IP
-     */
-    @Column(length = 50)
-    private String lastLoginIp;
+  /**
+   * 最后登录IP
+   */
+  @Column(length = 50)
+  private String lastLoginIp;
 
-    /**
-     * 最后活跃时间
-     */
-    private LocalDateTime lastActiveTime;
+  /**
+   * 最后活跃时间
+   */
+  private LocalDateTime lastActiveTime;
 
-    /**
-     * Token版本号，用于使旧的refresh token失效
-     * 当用户修改密码时，此版本号会递增
-     */
-    @Column(nullable = false)
-    private Long tokenVersion = 0L;
+  /**
+   * Token版本号，用于使旧的refresh token失效
+   * 当用户修改密码时，此版本号会递增
+   */
+  @Column(nullable = false)
+  private Long tokenVersion = 0L;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 用户角色关联
-     */
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "auth_user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+  /**
+   * 用户角色关联
+   */
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(name = "auth_user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+  private Set<Role> roles = new HashSet<>();
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .flatMap(role -> role.getPermissions().stream()
-                        .map(permission -> new SimpleGrantedAuthority(permission.getName())))
-                .collect(Collectors.toSet());
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return roles.stream()
+        .flatMap(role -> role.getPermissions().stream()
+            .map(permission -> new SimpleGrantedAuthority(permission.getName())))
+        .collect(Collectors.toSet());
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return accountNonExpired;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return accountNonLocked;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return accountNonLocked;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return credentialsNonExpired;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-    @PrePersist
-    protected void onCreate() {
-        createTime = LocalDateTime.now();
-        updateTime = LocalDateTime.now();
-    }
+  @PrePersist
+  protected void onCreate() {
+    createTime = LocalDateTime.now();
+    updateTime = LocalDateTime.now();
+  }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updateTime = LocalDateTime.now();
-    }
+  @PreUpdate
+  protected void onUpdate() {
+    updateTime = LocalDateTime.now();
+  }
 }

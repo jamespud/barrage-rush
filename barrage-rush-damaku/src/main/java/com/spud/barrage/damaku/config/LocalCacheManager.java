@@ -18,6 +18,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Configuration
 @EnableCaching
 public class LocalCacheManager {
+
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
     return new LettuceConnectionFactory();
@@ -31,7 +32,7 @@ public class LocalCacheManager {
         // 初始容量
         .initialCapacity(100)
         // 最大缓存条目数
-        .maximumSize(500)
+        .maximumSize(1000)
         // 写入后过期时间
         .expireAfterWrite(1, TimeUnit.MINUTES));
     return cacheManager;

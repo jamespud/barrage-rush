@@ -1,9 +1,10 @@
 package com.spud.barrage.damaku.controller;
 
-import com.spud.barrage.common.data.dto.Result;
-import com.spud.barrage.common.data.entity.AnchorRoomConfig;
-import com.spud.barrage.common.data.service.RoomService;
 import com.spud.barrage.common.core.constant.ApiConstants;
+import com.spud.barrage.common.core.io.Result;
+import com.spud.barrage.common.data.entity.AnchorRoomConfig;
+import com.spud.barrage.common.data.repository.AnchorRoomConfigRepository;
+import com.spud.barrage.common.data.service.RoomService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +24,12 @@ public class RoomController {
   @Autowired
   private RoomService roomService;
 
+  @Autowired
+  private AnchorRoomConfigRepository roomConfigRepository;
+
   @GetMapping(ApiConstants.ROOM_CONFIG)
   public Result<AnchorRoomConfig> roomConfig(@PathVariable("roomId") Long roomId) {
-    AnchorRoomConfig roomConfig = roomService.getRoomConfig(roomId);
+    AnchorRoomConfig roomConfig = roomConfigRepository.findAnchorRoomConfigByRoomId(roomId);
     // TODO: 处理房间配置
     return Result.success(roomConfig);
   }

@@ -2,7 +2,8 @@ package com.spud.barrage.consumer.service;
 
 import com.spud.barrage.common.data.dto.DanmakuMessage;
 import com.spud.barrage.common.data.repository.DanmakuRepository;
-import com.spud.barrage.common.core.constant.ApiConstants;
+import com.spud.barrage.common.mq.constant.MqConstants;
+import com.spud.barrage.common.mq.constant.MqConstants.RedisKey;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,14 +55,10 @@ public class DanmakuProcessService {
    * 保存消息到Redis
    */
   private void saveToRedis(DanmakuMessage message) {
-    String key = String.format(ApiConstants.REDIS_ROOM_MESSAGES, message.getRoomId());
+    String key = String.format(MqConstants.RedisKey.REDIS_ROOM_MESSAGES, message.getRoomId());
 
     redisTemplate.opsForZSet().add(key, message, message.getTimestamp());
     redisTemplate.expire(key, storageTtl, TimeUnit.SECONDS);
-
-    // 更新房间最后活跃时间
-    String lastActiveKey = String.format("room:%s:lastActive", message.getRoomId());
-    redisTemplate.opsForValue().set(lastActiveKey, System.currentTimeMillis());
   }
 
   /**
@@ -80,7 +77,7 @@ public class DanmakuProcessService {
    */
   private boolean shouldSaveToDatabase(DanmakuMessage message) {
     // 获取房间当前观众数
-    String viewerKey = String.format("room:%s:viewers", message.getRoomId());
+    String viewerKey = String.format(RedisKey.ROOM_VIEWERS, message.getRoomId());
     Object viewersObj = redisTemplate.opsForValue().get(viewerKey);
 
     int viewers = 0;

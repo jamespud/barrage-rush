@@ -1,7 +1,7 @@
 package com.spud.barrage.common.mq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spud.barrage.common.data.config.RedisConfig;
+import com.spud.barrage.common.mq.constant.MqConstants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +21,7 @@ import org.springframework.data.util.Pair;
 /**
  * 核心MQ配置类
  * 负责管理消息队列的配置和房间的交换机/队列绑定
- * 
+ *
  * @author Spud
  * @date 2025/4/01
  */
@@ -31,7 +31,6 @@ public class CoreMQConfig {
 
   private final Random random = new Random();
 
-  // 使用Redis存储和读取直播间信息
   @Autowired
   protected RedisTemplate<String, String> redisTemplate;
 
@@ -50,16 +49,14 @@ public class CoreMQConfig {
   /**
    * 根据房间ID获取其对应的交换机和队列
    * 实现负载均衡策略，而不是简单返回第一个
-   * 
+   *
    * @param roomId 房间ID
    * @return 交换机和队列对
    */
-  public Pair<Object, Object> getExchangeAndQueue(Long roomId) {
+  public Pair<String, String> getExchangeAndQueue(Long roomId) {
     // 从缓存获取房间交换机和队列
-    Set<String> exchanges = CacheManager.ROOM_EXCHANGE_CACHE.get(roomId,
-        k -> redisTemplate.opsForSet().members(String.format(RedisConfig.ROOM_EXCHANGE, roomId)));
-    Set<String> queues = CacheManager.ROOM_QUEUE_CACHE.get(roomId,
-        k -> redisTemplate.opsForSet().members(String.format(RedisConfig.ROOM_QUEUE, roomId)));
+    Set<String> exchanges = cacheManager.getRoomExchange(roomId);
+    Set<String> queues = cacheManager.getRoomQueue(roomId);
 
     // 如果Redis中交换机和队列为空，则创建新的交换机和队列
     if (exchanges.isEmpty() || queues.isEmpty()) {
@@ -67,10 +64,8 @@ public class CoreMQConfig {
       roomManager.processRoomStatus(roomId);
 
       // 重新获取创建的交换机和队列
-      exchanges = CacheManager.ROOM_EXCHANGE_CACHE.get(roomId,
-          k -> redisTemplate.opsForSet().members(String.format(RedisConfig.ROOM_EXCHANGE, roomId)));
-      queues = CacheManager.ROOM_QUEUE_CACHE.get(roomId,
-          k -> redisTemplate.opsForSet().members(String.format(RedisConfig.ROOM_QUEUE, roomId)));
+      exchanges = cacheManager.getRoomExchange(roomId);
+      queues = cacheManager.getRoomQueue(roomId);
     }
 
     if (exchanges.isEmpty() || queues.isEmpty()) {
@@ -82,7 +77,8 @@ public class CoreMQConfig {
     String selectedExchange = selectResource(new ArrayList<>(exchanges));
     String selectedQueue = selectResource(new ArrayList<>(queues));
 
-    log.debug("Selected exchange={} and queue={} for roomId={}", selectedExchange, selectedQueue, roomId);
+    log.debug("Selected exchange={} and queue={} for roomId={}", selectedExchange, selectedQueue,
+        roomId);
     return Pair.of(selectedExchange, selectedQueue);
   }
 
@@ -95,7 +91,7 @@ public class CoreMQConfig {
     if (resources.isEmpty()) {
       return "";
     } else if (resources.size() == 1) {
-      return resources.get(0);
+      return resources.getFirst();
     } else {
       // 随机选择，实现简单的负载均衡
       return resources.get(random.nextInt(resources.size()));
@@ -113,7 +109,7 @@ public class CoreMQConfig {
     // 监听房间MQ配置变化的频道
     MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(new RoomMqChangeListener());
     container.addMessageListener(listenerAdapter,
-        new ChannelTopic(RabbitMQConfig.ROOM_MQ_CHANGE_TOPIC));
+        new ChannelTopic(MqConstants.RedisTopic.ROOM_MQ_CHANGE));
 
     log.info("Redis message listener for room MQ changes initialized");
     return container;
@@ -121,7 +117,7 @@ public class CoreMQConfig {
 
   /**
    * 更新房间绑定
-   * 
+   *
    * @param roomId 房间ID
    * @return 是否更新成功
    */

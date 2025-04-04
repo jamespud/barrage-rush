@@ -7,7 +7,12 @@ import com.spud.barrage.auth.model.User;
 import com.spud.barrage.auth.repository.PermissionRepository;
 import com.spud.barrage.auth.repository.RoleRepository;
 import com.spud.barrage.auth.repository.UserRepository;
-import com.spud.barrage.common.core.io.Constants;
+import com.spud.barrage.common.core.io.AuthConstants;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -18,21 +23,15 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
 /**
  * 认证服务启动类
- * 
+ *
  * @author Spud
  * @date 2025/3/26
  */
 @Slf4j
 @RequiredArgsConstructor
-@EnableConfigurationProperties({ AuthProperties.class })
+@EnableConfigurationProperties({AuthProperties.class})
 @SpringBootApplication(scanBasePackages = "com.spud.barrage")
 public class AuthApplication {
 
@@ -111,19 +110,21 @@ public class AuthApplication {
           .build();
 
       List<Permission> permissions = permissionRepository.saveAll(
-          Arrays.asList(viewPermission, createPermission, updatePermission, deletePermission, adminPermission));
+          Arrays.asList(viewPermission, createPermission, updatePermission, deletePermission,
+              adminPermission));
 
       // 创建角色
       Role userRole = Role.builder()
-          .name(Constants.Security.ROLE_USER)
+          .name(AuthConstants.Security.ROLE_USER)
           .description("普通用户角色")
           .type("SYSTEM")
           .sort(2)
-          .permissions(new HashSet<>(Arrays.asList(viewPermission, createPermission, updatePermission)))
+          .permissions(
+              new HashSet<>(Arrays.asList(viewPermission, createPermission, updatePermission)))
           .build();
 
       Role adminRole = Role.builder()
-          .name(Constants.Security.ROLE_ADMIN)
+          .name(AuthConstants.Security.ROLE_ADMIN)
           .description("管理员角色")
           .type("SYSTEM")
           .sort(1)

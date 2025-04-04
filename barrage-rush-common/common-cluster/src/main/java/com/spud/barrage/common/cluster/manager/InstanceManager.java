@@ -1,6 +1,8 @@
 package com.spud.barrage.common.cluster.manager;
 
+import com.spud.barrage.common.cluster.constant.Operation;
 import com.spud.barrage.common.cluster.hash.ConsistentHash;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.Collections;
 import java.util.Map;
@@ -115,6 +117,7 @@ public class InstanceManager {
   /**
    * 启动实例管理器
    */
+  @PostConstruct
   public void start() {
     registerInstance();
     startHeartbeat();
@@ -217,7 +220,7 @@ public class InstanceManager {
       // 更新哈希环
       boolean updated = false;
 
-      if ("add".equals(operation)) {
+      if (Operation.ADD.equals(operation)) {
         // 实例添加事件
         log.info("Instance added: {}", targetInstanceId);
         updateHashRing();
@@ -226,7 +229,7 @@ public class InstanceManager {
         if (changeCallback != null) {
           changeCallback.accept(new ChangeEvent(ChangeEventType.INSTANCE_ADDED, targetInstanceId));
         }
-      } else if ("remove".equals(operation) || "offline".equals(operation)) {
+      } else if (Operation.REMOVE.equals(operation) || Operation.OFFLINE.equals(operation)) {
         // 实例移除事件
         log.info("Instance removed/offline: {}", targetInstanceId);
         updateHashRing();
@@ -236,7 +239,7 @@ public class InstanceManager {
           changeCallback.accept(
               new ChangeEvent(ChangeEventType.INSTANCE_REMOVED, targetInstanceId));
         }
-      } else if ("rebuild".equals(operation)) {
+      } else if (Operation.REBUILD.equals(operation)) {
         // 哈希环重建事件
         log.info("Hash ring rebuild requested by: {}", targetInstanceId);
         updateHashRing();
@@ -419,7 +422,7 @@ public class InstanceManager {
     private final ChangeEventType type;
 
     // 变更的实例ID
-    
+
     private final String instanceId;
 
     public ChangeEvent(ChangeEventType type, String instanceId) {

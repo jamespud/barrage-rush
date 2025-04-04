@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface AnchorRoomConfigRepository extends JpaRepository<AnchorRoomConfig, Long> {
 
+  AnchorRoomConfig findAnchorRoomConfigByRoomId(Long roomId);
 }

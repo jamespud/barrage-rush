@@ -11,6 +11,7 @@
     <module>common-mq</module>
     <module>common-ws</module>
     <module>common-cluster</module>
+    <module>common-auth</module>
   </modules>
   <packaging>pom</packaging>
 
@@ -29,7 +30,7 @@
     <jackson.version>2.16.1</jackson.version>
     <spring-retry.version>2.0.5</spring-retry.version>
   </properties>
-  
+
   <dependencyManagement>
     <dependencies>
       <!-- 子模块依赖 -->
@@ -58,7 +59,7 @@
         <artifactId>common-cluster</artifactId>
         <version>${project.version}</version>
       </dependency>
-      
+
       <!-- JWT相关依赖 -->
       <dependency>
         <groupId>io.jsonwebtoken</groupId>
@@ -77,14 +78,14 @@
         <version>${jwt.version}</version>
         <scope>runtime</scope>
       </dependency>
-      
+
       <!-- 缓存相关依赖 -->
       <dependency>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>
         <version>${caffeine.version}</version>
       </dependency>
-      
+
       <!-- Jackson相关依赖 -->
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -96,7 +97,7 @@
         <artifactId>jackson-databind</artifactId>
         <version>${jackson.version}</version>
       </dependency>
-      
+
       <!-- 重试相关依赖 -->
       <dependency>
         <groupId>org.springframework.retry</groupId>

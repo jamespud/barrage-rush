@@ -46,7 +46,7 @@ spring:
           max-wait: -1
           max-idle: 8
           min-idle: 0
-          
+
 # JWT配置
 jwt:
   secret: spudbQkAQtLvZs76k2JnQQ1LJJX1JeO9jC8xJ3h7KhcZCYG7s7s3YsPUhV3qfLzt

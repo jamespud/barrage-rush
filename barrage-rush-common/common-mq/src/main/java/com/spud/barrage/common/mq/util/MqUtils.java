@@ -1,13 +1,14 @@
 package com.spud.barrage.common.mq.util;
 
-import com.spud.barrage.common.core.constant.RoomType;
+import com.spud.barrage.common.data.mq.enums.RoomType;
 import com.spud.barrage.common.mq.config.RabbitMQConfig;
+import com.spud.barrage.common.mq.constant.MqConstants;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * MQ工具类
  * 提供与消息队列相关的工具方法
- * 
+ *
  * @author Spud
  * @date 2025/4/01
  */
@@ -55,6 +56,10 @@ public class MqUtils {
    * @return 房间ID，解析失败返回null
    */
   public static Long extractRoomId(String roomKey) {
+    if (roomKey == null) {
+      return null;
+    }
+
     try {
       String[] parts = roomKey.split(":");
       if (parts.length >= 2) {
@@ -75,6 +80,10 @@ public class MqUtils {
    * @return 房间ID，解析失败返回null
    */
   public static Long extractRoomIdFromQueue(String queueName) {
+    if (queueName == null) {
+      return null;
+    }
+
     try {
       String[] parts = queueName.split("\\.");
       if (parts.length >= 3) {
@@ -101,12 +110,12 @@ public class MqUtils {
    */
   public static String generateQueueName(Long roomId, RoomType type, int shardIndex) {
     return switch (type) {
-      case COLD -> "danmaku.queue.shared.cold";
-      case NORMAL -> String.format("danmaku.queue.%d", roomId);
-      case HOT, SUPER_HOT -> String.format("danmaku.queue.%d.%d", roomId, shardIndex);
+      case COLD -> MqConstants.QueueFormat.COLD_SHARED;
+      case NORMAL -> String.format(MqConstants.QueueFormat.NORMAL, roomId);
+      case HOT, SUPER_HOT -> String.format(MqConstants.QueueFormat.HOT, roomId, shardIndex);
       default -> {
         log.error("Unknown room type: {}", type);
-        yield String.format("danmaku.queue.%d", roomId);
+        yield String.format(MqConstants.QueueFormat.NORMAL, roomId);
       }
     };
   }
@@ -119,16 +128,23 @@ public class MqUtils {
    * @return 交换机名称
    */
   public static String generateExchangeName(Long roomId, RoomType type) {
-    switch (type) {
-      case COLD:
-        return "danmaku.exchange.shared";
-      case NORMAL:
-      case HOT:
-      case SUPER_HOT:
-        return String.format("danmaku.exchange.%d", roomId);
-      default:
+    return switch (type) {
+      case COLD -> MqConstants.ExchangeFormat.SHARED;
+      case NORMAL, HOT, SUPER_HOT -> String.format(MqConstants.ExchangeFormat.DEDICATED, roomId);
+      default -> {
         log.error("Unknown room type: {}", type);
-        return String.format("danmaku.exchange.%d", roomId);
-    }
+        yield String.format(MqConstants.ExchangeFormat.DEDICATED, roomId);
+      }
+    };
+  }
+
+  /**
+   * 生成房间的路由键
+   *
+   * @param roomId 房间ID
+   * @return 路由键
+   */
+  public static String generateRoutingKey(Long roomId) {
+    return String.format(MqConstants.RoutingKeyFormat.DANMAKU, roomId);
   }
 }

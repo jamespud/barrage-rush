@@ -3,6 +3,7 @@ package com.spud.barrage.common.data.entity;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Spud
@@ -11,6 +12,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
+@NoArgsConstructor
 public class AnchorRoomConfig extends BaseEntity {
 
   // 房间ID

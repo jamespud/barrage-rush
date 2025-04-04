@@ -34,64 +34,64 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Role {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    /**
-     * 角色名称
-     */
-    @Column(unique = true, nullable = false, length = 50)
-    private String name;
+  /**
+   * 角色名称
+   */
+  @Column(unique = true, nullable = false, length = 50)
+  private String name;
 
-    /**
-     * 角色描述
-     */
-    @Column(length = 200)
-    private String description;
+  /**
+   * 角色描述
+   */
+  @Column(length = 200)
+  private String description;
 
-    /**
-     * 角色类型（SYSTEM:系统角色, CUSTOM:自定义角色）
-     */
-    @Column(length = 20)
-    private String type;
+  /**
+   * 角色类型（SYSTEM:系统角色, CUSTOM:自定义角色）
+   */
+  @Column(length = 20)
+  private String type;
 
-    /**
-     * 角色排序（值越小优先级越高）
-     */
-    private Integer sort;
+  /**
+   * 角色排序（值越小优先级越高）
+   */
+  private Integer sort;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 角色-权限关联
-     */
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "auth_role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    private Set<Permission> permissions = new HashSet<>();
+  /**
+   * 角色-权限关联
+   */
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(name = "auth_role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
+  private Set<Permission> permissions = new HashSet<>();
 
-    /**
-     * 用户-角色关联
-     */
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users = new HashSet<>();
+  /**
+   * 用户-角色关联
+   */
+  @ManyToMany(mappedBy = "roles")
+  private Set<User> users = new HashSet<>();
 
-    @PrePersist
-    protected void onCreate() {
-        createTime = LocalDateTime.now();
-        updateTime = LocalDateTime.now();
-    }
+  @PrePersist
+  protected void onCreate() {
+    createTime = LocalDateTime.now();
+    updateTime = LocalDateTime.now();
+  }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updateTime = LocalDateTime.now();
-    }
+  @PreUpdate
+  protected void onUpdate() {
+    updateTime = LocalDateTime.now();
+  }
 }

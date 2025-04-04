@@ -1,9 +1,8 @@
 package com.spud.barrage.common.mq.service;
 
-import com.spud.barrage.common.core.constant.RoomType;
-import com.spud.barrage.common.data.config.RedisConfig;
-import com.spud.barrage.common.mq.config.RabbitMQConfig;
+import com.spud.barrage.common.data.mq.enums.RoomType;
 import com.spud.barrage.common.mq.config.RoomManager;
+import com.spud.barrage.common.mq.constant.MqConstants;
 import com.spud.barrage.common.mq.util.MqUtils;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +39,7 @@ public class RoomHeatMonitorService {
   public void checkRoomHeat() {
     try {
       // 获取所有活跃房间
-      Set<String> activeRoomKeys = redisTemplate.keys(RedisConfig.ACTIVE_ROOM);
+      Set<String> activeRoomKeys = redisTemplate.keys(MqConstants.RedisKey.ACTIVE_ROOMS);
       if (activeRoomKeys == null || activeRoomKeys.isEmpty()) {
         return;
       }
@@ -56,7 +55,7 @@ public class RoomHeatMonitorService {
           }
 
           // 获取房间观众数量
-          String viewerKey = String.format(RedisConfig.ROOM_VIEWER, roomId);
+          String viewerKey = String.format(MqConstants.RedisKey.ROOM_VIEWERS, roomId);
           Object viewersObj = redisTemplate.opsForValue().get(viewerKey);
           int viewers = 0;
           if (viewersObj != null) {
@@ -68,7 +67,7 @@ public class RoomHeatMonitorService {
           }
 
           // 获取弹幕速率
-          String danmakuRateKey = String.format("room:%s:danmaku:rate", roomId);
+          String danmakuRateKey = String.format(MqConstants.RedisKey.ROOM_DANMAKU_RATE, roomId);
           Object rateObj = redisTemplate.opsForValue().get(danmakuRateKey);
           int danmakuRate = 0;
           if (rateObj != null) {
@@ -113,7 +112,7 @@ public class RoomHeatMonitorService {
     }
 
     // 从Redis获取
-    String typeKey = String.format(RedisConfig.ROOM_TYPE_CHANGE, roomId);
+    String typeKey = String.format(MqConstants.RedisKey.ROOM_TYPE_CHANGE, roomId);
     Object typeObj = redisTemplate.opsForValue().get(typeKey);
     if (typeObj != null) {
       try {
@@ -157,14 +156,14 @@ public class RoomHeatMonitorService {
 
       // 更新Redis中的房间类型
       redisTemplate.opsForValue().set(
-          String.format(RedisConfig.ROOM_TYPE_CHANGE, roomId),
+          String.format(MqConstants.RedisKey.ROOM_TYPE_CHANGE, roomId),
           newType.name());
 
       // 处理房间类型变化
       roomManager.processRoomStatus(roomId);
 
       // 发布房间状态变化事件
-      redisTemplate.convertAndSend(RabbitMQConfig.ROOM_MQ_CHANGE_TOPIC, roomId.toString());
+      redisTemplate.convertAndSend(MqConstants.RedisTopic.ROOM_MQ_CHANGE, roomId.toString());
 
     } catch (Exception e) {
       log.error("Failed to update room type for room {}: {}", roomId, e.getMessage(), e);

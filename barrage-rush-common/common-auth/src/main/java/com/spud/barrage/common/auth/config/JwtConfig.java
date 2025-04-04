@@ -15,29 +15,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JwtConfig {
 
-    @Value("${jwt.secret:barrage-rush-default-secret-key}")
-    private String secret;
+  @Value("${jwt.secret:barrage-rush-default-secret-key}")
+  private String secret;
 
-    @Value("${jwt.access-token-expiration:1800000}")
-    private long accessTokenExpiration;
+  @Value("${jwt.access-token-expiration:1800000}")
+  private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-token-expiration:604800000}")
-    private long refreshTokenExpiration;
+  @Value("${jwt.refresh-token-expiration:604800000}")
+  private long refreshTokenExpiration;
 
-    @Value("${jwt.remember-me-expiration:2592000000}")
-    private long rememberMeExpiration;
+  @Value("${jwt.remember-me-expiration:2592000000}")
+  private long rememberMeExpiration;
 
-    /**
-     * 配置JWT工具类
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public JwtTokenUtil jwtTokenUtil() {
-        JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
-        jwtTokenUtil.setSecret(secret);
-        jwtTokenUtil.setAccessTokenExpiration(accessTokenExpiration);
-        jwtTokenUtil.setRefreshTokenExpiration(refreshTokenExpiration);
-        jwtTokenUtil.setRememberMeExpiration(rememberMeExpiration);
-        return jwtTokenUtil;
-    }
+  /**
+   * 配置JWT工具类
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public JwtTokenUtil jwtTokenUtil() {
+    JwtTokenUtil jwtTokenUtil = new JwtTokenUtil();
+    jwtTokenUtil.setSecret(secret);
+    jwtTokenUtil.setAccessTokenExpiration(accessTokenExpiration);
+    jwtTokenUtil.setRefreshTokenExpiration(refreshTokenExpiration);
+    jwtTokenUtil.setRememberMeExpiration(rememberMeExpiration);
+    return jwtTokenUtil;
+  }
 }
